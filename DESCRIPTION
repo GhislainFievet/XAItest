@@ -1,0 +1,25 @@
+Package: XAItest 
+Title: XAItest: using eXplanaible AI to go beyond the t test
+Version: 0.99.0
+Authors@R: c(
+    person("Ghislain", "FIEVET", , "ghislain.fievet@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-0337-7327")),
+    person("Sébastien", "HERGALANT", role = "aut",
+    email="sebastien.hergalant@inserm.fr", comment=c(ORCID = "0000-0001-8456-7992")))
+Description:
+    adverSCarial is an R Package designed for generating and analyzing the vulnerability of scRNA-seq
+    classifiers to adversarial attacks. The package is versatile and provides a format for integrating
+    any type of classifier. It offers functions for studying and generating two types of attacks,
+    single gene attack and max change attack. The single gene attack involves making a small modification
+    to the input to alter the classification. The max change attack involves making a large modification
+    to the input without changing its classification.
+    The package provides a comprehensive solution for evaluating the robustness of scRNA-seq classifiers
+    against adversarial attacks.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+biocViews: Software, StatisticalMethod, FeatureExtraction, Classification, Regression, SupportVectorMachine
+Suggests: knitr, RUnit, BiocGenerics, TENxPBMCData, CHETAH, stringr, LoomExperiment
+Imports: gtools, S4Vectors, methods, DelayedArray
+VignetteBuilder: knitr
