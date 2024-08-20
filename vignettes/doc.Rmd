@@ -1,0 +1,315 @@
+---
+title: "XAItest: Enhancing Feature Discovery with eXplainable AI"
+shorttitle: XAItest
+author: Ghislain FIEVET <ghislain.fievet@gmail.com>
+package: XAItest
+abstract: >
+    XAItest is an R Package designed for integrating eXplainable Artificial Intelligence (XAI) techniques with traditional statistical analysis to enhance the discovery and interpretation of significant features within datasets. It applies p-values and feature importance metrics, such as SHAP, LIME or custom functions. A major XAItest tool is the generation of simulated data to establish significance thresholds, aiding in the direct comparison of feature importance with statistical p-values. The package aims at helping researchers and bioinformaticians seeking to uncover key features inside a dataset.
+output:
+    BiocStyle::html_document:
+        toc: true
+        toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{XAItest}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+## Introduction
+
+In biological and biomedical research, the identification of key variables in omic data—such as transcriptomes, proteomes, and methylomes—is generally accomplished using statistical tests like the t-test or correlation analysis. While these methods perform well for detecting classical mean differences, they often fail to capture more complex scenarios, such as non-Gaussian data distributions, interactions among multiple variables, or multimodal distributions.
+
+To address these challenges, the scientific literature proposes to use the potential of explainable AI (XAI) to assist in the discovery of key features. Examples of these techniques can be found in the analysis of methylation and transcriptome data:
+
+Rajpal S., Rajpal A., Saggar A. et al. XAI-MethylMarker: Explainable AI approach for biomarker discovery for breast cancer subtype classification using methylation data. (2023) https://doi.org/10.1016/j.eswa.2023.120130
+
+Kumar S., Das A.. Peripheral blood mononuclear cell derived biomarker detection using eXplainable Artificial Intelligence (XAI) provides better diagnosis of breast cancer, each made with lab custom scripts. (2023) https://doi.org/10.1016/j.compbiolchem.2023.107867
+
+The XAItest package aims at proposing a versatile tool to run these types of analysis easily. It calculates various p-value based statistics, such as the t-test or correlation, depending on whether the target variable is categorical or numerical. It also computes different XAI matrics such as feature importance metrics, by default a built-in method from random forest, an implementation of SHAP and of LIME, and the possibility to integrate custom functions.
+
+Establishing a significance level for a p-value is straightforward, often set at 0.05 or 0.01. However, determining thresholds for the feature importance is more complicated, and has to be computed at each experiment. Our package offers an integrated solution to this challenge by generating simulated data designed to meet selected p-value thresholds, thus setting significance thresholds for the feature importance.
+
+Lastly, our package offers an intuitive visualization of results through color-coded tables, highlighting statistical metrics and their significance for easy interpretation.
+
+
+# Installation
+```{r installation, eval=FALSE}
+## Install BiocManager is necessary
+if (!require("BiocManager")) {
+    install.packages("BiocManager")
+}
+BiocManager::install(version="devel")
+BiocManager::install('XAItest')
+```
+
+# XAI.test on a classification dataset
+First, we create a toy example of 100 samples (50 from class A and 50 from class B), each with 13 features. We will investigate which features can be identified using a t-test or linear modeling, and which can be detected through feature importance metrics
+
+```{r load libs}
+# Load the libraries
+library(XAItest)
+library(ggplot2)
+library(ggforce)
+library(gridExtra)
+```
+
+
+## Creation of a simulated classification dataset
+- 50 samples of "A", and 50 samples of "B"
+- 10 features of normal distribution noise
+
+```{r create simu_data}
+# Samples
+df_simu_classif = data.frame(y=c(rep("A",50), rep("B",50)))
+# Noise columns
+set.seed(123)
+noise_columns <- paste0("norm_noise", sprintf("%02d", 1:10))
+df_simu_classif[noise_columns] <- lapply(noise_columns, function(column_name) {
+    mean <- runif(1, min = -10, max = 10)
+    sd <- runif(1, min = 1, max = 5)
+    rnorm(nrow(df_simu_classif), mean = mean, sd = sd)
+})
+
+```
+
+Now let's add 3 key features, the **t-test can detect the first 2, but not the last one**:
+- **diff_distrib01** different normal distributions between "A" and "B"
+- **diff_distrib02** different normal distributions between "A" and "B"
+- **bidistrib01** normal bidistribution for "A" and normal distribution for "B"
+
+```{r}
+rand_mean = runif(1, min = 2, max = 5)
+rand_sd = runif(1, min = 1, max = 5)
+mask_group = df_simu_classif[["y"]] == "A"
+df_simu_classif[["diff_distrib01"]][mask_group] <- rnorm(sum(mask_group), mean = rand_mean, sd = rand_sd)
+mask_group = df_simu_classif[["y"]] == "B"
+df_simu_classif[["diff_distrib01"]][mask_group] <- rnorm(sum(mask_group), mean = -rand_mean, sd = rand_sd)
+
+rand_mean = runif(1, min = 3, max = 5)
+rand_sd = runif(1, min = 1, max = 5)
+mask_group = df_simu_classif[["y"]] == "A"
+df_simu_classif[["diff_distrib02"]][mask_group] <- rnorm(sum(mask_group), mean = rand_mean, sd = rand_sd)
+rand_mean = runif(1, min = -5, max = -3)
+rand_sd = runif(1, min = 1, max = 5)
+mask_group = df_simu_classif[["y"]] == "B"
+df_simu_classif[["diff_distrib02"]][mask_group] <- rnorm(sum(mask_group), mean = rand_mean, sd = rand_sd)
+```
+
+```{r}
+c_x1 <- rnorm(n = 25, mean = 1, sd = 1)
+c_x2 <- rnorm(n = 25, mean = 11, sd = 2)
+c_x <- c(c_x1, c_x2)
+c_y <- rnorm(n = 50, mean = 5, sd = 1)
+df_simu_classif$biDistrib = c(c_x, c_y)
+```
+
+We can see below how class A and class B are distributed accross the significant features: *diff_distrib01*, *diff_distrib02* and *biDistrib*.
+
+```{r fig.width=10, fig.height=5}
+p1 <- ggplot(df_simu_classif, aes(x=diff_distrib01, y=diff_distrib02, color=y)) +
+    geom_point() + ggtitle("different normal distributions between A and B") + theme_bw()
+p2 <- ggplot(df_simu_classif, aes(x=norm_noise01, y=biDistrib, color=y)) +
+    geom_point() + ggtitle("normal bidistribution for A") + theme_bw()
+grid.arrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+We employ the XAI.test function to evaluate the p-values and feature importance of each feature. The parameter *simData* is set to TRUE, which instructs the function to generate a new feature named *simFeat*, designed to achieve a specified p-value (column *ttest_adjPval*), set at *simPvalTarget = 0.01*. The purpose of *simFeat* is to establish a significance threshold for assessing feature importance values.
+
+```{r}
+objXAI <- XAI.test(df_simu_classif, "y", simData = TRUE, simPvalTarget = 0.01)
+head(objXAI@metricsTable)
+```
+
+The *mapPvalImportance* function reveals the significance of the feature importance by comparison with the p-values.
+
+```{r mapPvalImportance1, eval=FALSE}
+mapPvalImportance(objXAI)
+```
+
+![mapPvalImportance1](im/dt1.png)
+
+We can see that the **biDistrib** feature **is not detected by the p-values**, but is detected by the **feature importance** metrics.
+
+## Plot each model
+
+The *XAI.test* function builds several predictive models.
+In order to provide a p-value, linear regression (lm) builds a model that we can access. Similarly, to give feature importances, methods like the random forest, SHAP, and LIME also build models that are accessible
+
+The *plotModel* function is used to visualize the results of these predictive models. This visualization helps determine which classes are well-predicted by which model. This function aids in more effectively interpreting the model's performance in each situation.
+
+In this section, we aim to evaluate the performance of each model after removing the *diff_distrib01* and *diff_distrib02* features from the dataset, leaving only noise and the *biDistrib* features.
+
+```{r}
+objXAI <- XAI.test(df_simu_classif[,setdiff(colnames(df_simu_classif),
+                                            c("diff_distrib01", "diff_distrib02"))],
+                  simData=TRUE)
+head(objXAI@metricsTable)
+```
+
+We can see below that the linear model predictions contain many errors, while the random forest, along with the models used for SHAP and LIME, are much more precise.
+
+```{r fig.width=10, fig.height=10}
+p1 <- plotModel(objXAI, "lm_pval", "biDistrib", "simFeat")
+p2 <- plotModel(objXAI, "RF_feat_imp", "biDistrib", "simFeat")
+p3 <- plotModel(objXAI, "SHAP_feat_imp", "biDistrib", "simFeat")
+p4 <- plotModel(objXAI, "LIME_feat_imp", "biDistrib", "simFeat")
+grid.arrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
+```
+
+```{r mapPvalImportance2, eval=FALSE}
+mapPvalImportance(objXAI)
+```
+![mapPvalImportance2](im/dt2.png)
+
+# XAI.test on a regression dataset
+
+First, we create a regression toy example of 100 samples, with 5 noise features, and a *y* feature computed from one of the noise feature. We will investigate if the feature used to compute *y* can be identified using correlation, linear modeling, or feature importance metrics.
+
+## Creation of a regression simulated dataset
+- 2 features of normal distribution noise
+- 3 features of uniform distribution noise
+- a *y* feature computed from one of the normal distribution noise
+
+```{r}
+set.seed(123)
+df_simu_regr <- data.frame(norm_noise1=rnorm(100,1,1))
+df_simu_regr$norm_noise1 <- rnorm(100,2,2)
+df_simu_regr$norm_noise2 <- rnorm(100,-3,3)
+df_simu_regr$unif_noise1 <- runif(100,0,1)
+df_simu_regr$unif_noise2 <- runif(100,0,2)
+df_simu_regr$unif_noise3 <- runif(100,-3,3)
+```
+
+### Function of parabole
+This function is invisible to the correlation test.
+
+```{r}
+transfo_parab <- function(xs){
+    x1 <- min(xs)
+    x2 <- max(xs)
+    h <- (x1 + x2) / 2
+    k <- max(xs)/2
+    a <- k / ((h - x1) * (h - x2))
+    
+    y <- a * (xs - x1) * (xs - x2)
+    
+    return (y)
+}
+```
+
+The *y* feature is a parabole computed from the *norm_noise2* feature.
+
+```{r}
+df_simu_regr$y <- transfo_parab(df_simu_regr$norm_noise2)
+ggplot(df_simu_regr, aes(x=norm_noise2, y=y)) + geom_point() + theme_bw()
+```
+
+We employ the *XAI.test* function to evaluate the p-values and feature importance of each feature. The parameter *simData* is set to TRUE, which instructs the function to generate a new feature named *simFeat*, which is designed to achieve a specified p-value (column *ttest_adjPval*), set at *simPvalTarget = 0.01*. The purpose of *simFeat* is to establish a significance threshold for assessing feature importance values.
+
+```{r}
+regr_results <- XAI.test(df_simu_regr, "y", simData=T, simPvalTarget = 0.01)
+regr_results@metricsTable
+```
+
+```{r mapPvalImportance3, eval=FALSE}
+mapPvalImportance(regr_results, refPvalColumn = "cor_adjPval", refPval = 0.01)
+```
+![mapPvalImportance3](im/dt3.png)
+
+The relationship between the *norm_noise2* and *y* features is not apparent through correlation and linear modeling statistical tests, but is revealed by the **Random Forest built-in feature importance**, as well as its **SHAP** and **LIME** values.
+
+## Plot each model
+Similar to the classification case, the use of the *XAI.test* function creates predictive models that we can visualize with the plotModel function. This provides insights into why the *norm_noise2* feature was detected by feature importance metrics and not by linear modeling.
+
+```{r}
+regr_results@args$modelType
+```
+
+```{r fig.width=10, fig.height=5}
+p1 <- plotModel(regr_results, "lm_pval", "norm_noise2")
+p2 <- plotModel(regr_results, "SHAP_feat_imp", "norm_noise2")
+grid.arrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+Use the *modelsOverview* function to quickly review the performance of the models.
+
+```{r}
+modelsOverview(regr_results)
+```
+
+# Add a custom feature importance function
+"The *XAItest* package includes several classic feature importance algorithms and supports the addition of new ones. To integrate an *XGBoost* model and generate its feature importance metrics using the *SHAP* package *shapr*. 
+
+### The following function structure is required
+
+The function should accept:
+- *df*: a DataFrame where rows represent samples and columns represent features.
+- *y*: the name of the target feature.
+- *...*: to authorize additional arguments.
+
+The function should return:
+- *featImps*: the list of feature importance for each feature.
+- *modelPredictions* (optional): the list of predictions when the model is applied to *df*, utilized in the *plotModel* function.
+- *model* (optional): the model used to compute feature importance, employed in the *plotModel* function when *modelPredictions* is unavailable.
+
+```{r}
+# featureImportanceXGBoost <- function(df, y="y", featImpAgr="mean"){
+featureImportanceXGBoost <- function(df, y="y", ...){
+    # Prepare data
+    matX <- as.matrix(df[, colnames(df) != y])
+    vecY <- df[[y]]
+    vecY <- as.character(vecY)
+    vecY[vecY == unique(vecY)[1]] <- 0
+    vecY[vecY == unique(vecY)[2]] <- 1
+    vecY <- as.numeric(vecY)
+    
+    # Train the XGBoost model
+    model <- xgboost::xgboost(data = matX, label = vecY, nrounds = 10, verbose = FALSE)
+    modelPredictions <- predict(model, matX)
+    modelPredictionsCat <- modelPredictions
+    modelPredictionsCat[modelPredictions < 0.5] <- unique(as.character(df[[y]]))[1]
+    modelPredictionsCat[modelPredictions >= 0.5] <- unique(as.character(df[[y]]))[2]
+
+    # Specifying the phi_0, i.e. the expected prediction without any features
+    p <- mean(vecY)
+    # Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
+    # the empirical (conditional) distribution approach with bandwidth parameter sigma = 0.1 (default)
+    explainer <- shapr::shapr(matX, model, n_combinations = 200)
+    explanation <- shapr::explain(
+        matX,
+        approach = "empirical",
+        explainer = explainer,
+        prediction_zero = p,
+        n_combinations = 1000
+    )
+    results <- colMeans(abs(explanation$dt), na.rm = TRUE)
+    
+    list(featImps = results, model = model, modelPredictions=modelPredictionsCat)
+}
+```
+
+```{r}
+set.seed(123)
+results <- XAI.test(df_simu_classif,"y", simData = T,
+                   simPvalTarget = 0.0005,
+                   customFeatImps=list("XGB_SHAP_feat_imp"=featureImportanceXGBoost),
+                  )
+```
+
+The *mapPvalImportance* function reveals that both the custom *XGB_SHAP_feat_imp* and other feature importance metrics identify the *biDistrib* feature as significant.
+
+```{r mapPvalImportance4, eval=FALSE}
+mapPvalImportance(results, refPvalColumn = "ttest_adjPval", refPval = 0.0005)
+```
+![mapPvalImportance4](im/dt4.png)
+
+```{r}
+# Plot of the XGboost generated model
+plotModel(results, "XGB_SHAP_feat_imp", "diff_distrib01", "biDistrib")
+```
+
+```{r}
+sessionInfo()
+```
+
