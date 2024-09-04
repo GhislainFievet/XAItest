@@ -62,7 +62,8 @@
 #' results
 #' 
 #' @export 
-XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE, simMethod="regrnorm",
+XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE,
+                    simMethod="regrnorm",
                     simPvalTarget=0.045, adjMethod="bonferroni", 
                     customPVals=NULL, customFeatImps=NULL,
                     modelType="default", corMethod="pearson",
@@ -440,8 +441,10 @@ caretMethod='rf', caretTrainArgs=NULL){
 
     bg_X <- dfTest[,c(colnames(dfTest)[colnames(dfTest) != y], y)]
 
-    featImps <- kernelshap::kernelshap(fit, X = dfTrain[, colnames(dfTrain) != y],
-                           bg_X = bg_X, verbose=FALSE)
+    featImps <- kernelshap::kernelshap(fit,
+                        X = dfTrain[, colnames(dfTrain) != y],
+                        bg_X = bg_X, type="prob",
+                        verbose=FALSE)
 
     if (length(names(featImps$S)) == 0){
         featImps <- as.data.frame(featImps$S)
