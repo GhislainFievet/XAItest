@@ -443,7 +443,7 @@ caretMethod='rf', caretTrainArgs=NULL){
 
     featImps <- kernelshap::kernelshap(fit,
                         X = dfTrain[, colnames(dfTrain) != y],
-                        bg_X = bg_X, type="prob",
+                        bg_X = bg_X,
                         verbose=FALSE)
 
     if (length(names(featImps$S)) == 0){
