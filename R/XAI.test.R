@@ -440,6 +440,8 @@ caretMethod='rf', caretTrainArgs=NULL){
     # fit <- caret::train(myFormula, method=caretMethod, data = dfTrain)
 
     bg_X <- dfTest[,c(colnames(dfTest)[colnames(dfTest) != y], y)]
+    bg_X$y[bg_X$y == unique(bg_X$y)[1]] <- 0
+    bg_X$y[bg_X$y == unique(bg_X$y)[2]] <- 1
 
     featImps <- kernelshap::kernelshap(fit,
                         X = dfTrain[, colnames(dfTrain) != y],
