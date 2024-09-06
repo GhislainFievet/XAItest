@@ -412,9 +412,14 @@ featureImportanceRF <- function(df, y="y", modelType = "classification") {
     list(featImps = results, model = rfModel)
 }
 
-featureImportanceShap <- function(df, y="y", featImpAgr="mean", modelType="classification",
-caretMethod='rf', caretTrainArgs=NULL){
+featureImportanceShap <- function(df, y="y", featImpAgr="mean",
+    modelType="classification",
+    caretMethod='rf', caretTrainArgs=NULL){
+
     if (modelType == "classification"){
+        dfOr <- df
+        myA <- unique(df[[y]])[1]
+        myB <- unique(df[[y]])[2]
         df = df[order(df[[y]]),]
         n1 = sum(df[[y]] == unique(df[[y]])[1])
         n2 = sum(df[[y]] == unique(df[[y]])[2])
@@ -423,7 +428,13 @@ caretMethod='rf', caretTrainArgs=NULL){
         sampbTrain <- sample((n1 + 1):(n1 + n2), round(n2/2))
         sampbTest <- setdiff((n1 + 1):(n1 + n2), sampbTrain)
         dfTrain <- df[c(sampaTrain, sampbTrain),]
+        dfTrain[[y]][dfTrain[[y]] == myA] <- 0
+        dfTrain[[y]][dfTrain[[y]] == myB] <- 1
+        dfTrain[[y]] <- as.numeric(dfTrain[[y]])
         dfTest <- df[c(sampaTest, sampbTest),]
+        dfTest[[y]][dfTest[[y]] == myA] <- 0
+        dfTest[[y]][dfTest[[y]] == myB] <- 1
+        dfTest[[y]] <- as.numeric(dfTest[[y]])
     }
     if (modelType == "regression"){
         sampTrain <- sample(1:nrow(df), round(nrow(df)/2))
@@ -440,8 +451,8 @@ caretMethod='rf', caretTrainArgs=NULL){
     # fit <- caret::train(myFormula, method=caretMethod, data = dfTrain)
 
     bg_X <- dfTest[,c(colnames(dfTest)[colnames(dfTest) != y], y)]
-    bg_X$y[bg_X$y == unique(bg_X$y)[1]] <- 0
-    bg_X$y[bg_X$y == unique(bg_X$y)[2]] <- 1
+    # bg_X$y[bg_X$y == unique(bg_X$y)[1]] <- 0
+    # bg_X$y[bg_X$y == unique(bg_X$y)[2]] <- 1
 
     featImps <- kernelshap::kernelshap(fit,
                         X = dfTrain[, colnames(dfTrain) != y],
@@ -463,7 +474,14 @@ caretMethod='rf', caretTrainArgs=NULL){
         }
     }))
     names(results) <- colnames(df)[colnames(df) != y]
-    list(featImps = results, model = fit)
+    if (modelType == "regression"){
+        return(list(featImps = results, model = fit))
+    } else {
+        myPredictions = predict(fit, dfOr)
+        myPredictions[myPredictions < 0.5] = myA
+        myPredictions[myPredictions >= 0.5] = myB
+        return(list(featImps = results, modelPredictions = myPredictions))
+    }
 }
 
 featureImportanceLime <- function(df, y="y", featImpAgr = "mean", modelType = "classification",

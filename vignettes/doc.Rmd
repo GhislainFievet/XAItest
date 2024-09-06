@@ -116,8 +116,11 @@ grid.arrange(p1, p2, ncol = 2, nrow = 1)
 
 We employ the XAI.test function to evaluate the p-values and feature importance of each feature. The parameter *simData* is set to TRUE, which instructs the function to generate a new feature named *simFeat*, designed to achieve a specified p-value (column *ttest_adjPval*), set at *simPvalTarget = 0.01*. The purpose of *simFeat* is to establish a significance threshold for assessing feature importance values.
 
-```{r}
+```{r XAI.test 1 , echo=FALSE}
 objXAI <- XAI.test(df_simu_classif, "y", simData = TRUE, simPvalTarget = 0.01)
+```
+
+```{r}
 head(objXAI@metricsTable)
 ```
 
