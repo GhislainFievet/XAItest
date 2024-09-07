@@ -166,7 +166,8 @@ XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE,
     if("shap" %in% defaultMethods){
         featImpSHAP <- featureImportanceShap(df, y, featImpAgr=featImpAgr,
         caretMethod=caretMethod, , caretTrainArgs=caretTrainArgs)
-        listModels[["SHAP_feat_imp"]] <- featImpSHAP$model
+        # listModels[["SHAP_feat_imp"]] <- featImpSHAP$model
+        listModelPredictions[["SHAP_feat_imp"]] <- featImpSHAP$modelPredictions
         results[["SHAP_feat_imp"]] <- featImpSHAP$featImps[rownames(results)]
     }
     if("lime" %in% defaultMethods){
