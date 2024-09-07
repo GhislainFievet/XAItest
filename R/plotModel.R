@@ -31,7 +31,7 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
     if(!is.character(yFeature)){
         stop("The yFeature must be a character")
     }
-    if(!modelName %in% names(objXAI@models)){
+    if(!modelName %in% c(names(objXAI@models), names(objXAI@modelPredictions))){
         stop("The modelName is not in the models list")
     }
     if(!objXAI@args$simData && !xFeature %in% colnames(objXAI@data)){
