@@ -25,9 +25,10 @@ XAI.test(
 )
 }
 \arguments{
-\item{df}{Dataframe containing the data. Rows are samples and columns are features.}
+\item{df}{SummarizedExperiment or dataframe containing the data. If dataframe rows are samples and columns are features.}
 
-\item{y}{Name of the column containing the target variable. Default to "y".}
+\item{y}{Name of the SummarizedExperiment metadata or column of the dataframe containing the target variable.
+Default to "y".}
 
 \item{featImpAgr}{Can be "mean" or "max_abs". It defines how the feature importance is aggregated.}
 
