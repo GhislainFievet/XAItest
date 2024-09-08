@@ -66,7 +66,7 @@ The dataset contains 50 samples of **A**, and 50 samples of **B**, with 10 noise
 The t-test can detect **diff_distrib01** and **diff_distrib02** but not **bidistrib01**.
 
 ```{r load classif simu data}
-se_path <- system.file("extdata", "seClassif.rds", package="adverSCarial")
+se_path <- system.file("extdata", "seClassif.rds", package="XAItest")
 dataset_classif <- readRDS(se_path)
 
 data_matrix <- assay(dataset_classif, "counts")
@@ -75,7 +75,7 @@ metadata <- as.data.frame(colData(dataset_classif))
 df_simu_classif <- as.data.frame(cbind(data_matrix, y = metadata[['y']]))
 
 # Example with a dataframe.
-# df_path <- system.file("extdata", "dfClassif.txt", package="adverSCarial")
+# df_path <- system.file("extdata", "dfClassif.txt", package="XAItest")
 # dataset_classif <- read.table(df_path)
 # df_simu_classif <- dataset_classif
 ```
@@ -175,7 +175,7 @@ transfo_parab <- function(xs){
 ```
 
 ```{r load regress simu data}
-se_path <- system.file("extdata", "dfRegress.rds", package="adverSCarial")
+se_path <- system.file("extdata", "seRegress.rds", package="XAItest")
 dataset_regress <- readRDS(se_path)
 
 data_matrix <- assay(dataset_regress, "counts")
@@ -184,7 +184,7 @@ metadata <- as.data.frame(colData(dataset_regress))
 df_simu_regr <- as.data.frame(cbind(data_matrix, y = metadata[['y']]))
 
 # Example with a dataframe.
-# df_path <- system.file("extdata", "dfRegress.txt", package="adverSCarial")
+# df_path <- system.file("extdata", "dfRegress.txt", package="XAItest")
 # dataset_regress <- read.table(df_path)
 # df_simu_regr <- dataset_regress
 ```
