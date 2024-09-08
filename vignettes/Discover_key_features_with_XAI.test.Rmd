@@ -67,7 +67,7 @@ The t-test can detect **diff_distrib01** and **diff_distrib02** but not **bidist
 
 ```{r load classif simu data}
 se_path <- system.file("extdata", "seClassif.rds", package="adverSCarial")
-dataset_classif <- readDRS(se_path)
+dataset_classif <- readRDS(se_path)
 
 data_matrix <- assay(dataset_classif, "counts")
 data_matrix <- t(data_matrix)
@@ -176,7 +176,7 @@ transfo_parab <- function(xs){
 
 ```{r load regress simu data}
 se_path <- system.file("extdata", "dfRegress.rds", package="adverSCarial")
-dataset_regress <- readDRS(se_path)
+dataset_regress <- readRDS(se_path)
 
 data_matrix <- assay(dataset_regress, "counts")
 data_matrix <- t(data_matrix)
