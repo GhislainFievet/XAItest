@@ -73,6 +73,11 @@ data_matrix <- assay(dataset_classif, "counts")
 data_matrix <- t(data_matrix)
 metadata <- as.data.frame(colData(dataset_classif))
 df_simu_classif <- as.data.frame(cbind(data_matrix, y = metadata[['y']]))
+for (col in names(df_simu_classif)) {
+    if (col != 'y') {
+        df_simu_classif[[col]] <- as.numeric(df_simu_classif[[col]])
+    }
+}
 
 # Example with a dataframe.
 # df_path <- system.file("extdata", "dfClassif.txt", package="XAItest")
@@ -182,6 +187,11 @@ data_matrix <- assay(dataset_regress, "counts")
 data_matrix <- t(data_matrix)
 metadata <- as.data.frame(colData(dataset_regress))
 df_simu_regr <- as.data.frame(cbind(data_matrix, y = metadata[['y']]))
+for (col in names(df_simu_regr)) {
+    if (col != 'y') {
+        df_simu_regr[[col]] <- as.numeric(df_simu_regr[[col]])
+    }
+}
 
 # Example with a dataframe.
 # df_path <- system.file("extdata", "dfRegress.txt", package="XAItest")

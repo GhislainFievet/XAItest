@@ -81,6 +81,11 @@ XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE,
         metadata <- as.data.frame(colData(df))
         df <- as.data.frame(cbind(data_matrix, y = metadata[[y]]))
         colnames(df)[ncol(df)] <- y
+        for (col in names(df)) {
+            if (col != y && !is.numeric(df[[col]])) {
+                df[[col]] <- as.numeric(as.character(df[[col]]))
+            }
+        }
     }
     if (!is.character(y)){
         stop("The y must be a character")
