@@ -14,8 +14,9 @@
 #' metrics derived from machine learning models, by directly comparing them with established statistical
 #' significance metrics.
 
-#' @param df Dataframe containing the data. Rows are samples and columns are features.
-#' @param y Name of the column containing the target variable. Default to "y".
+#' @param df SummarizedExperiment or dataframe containing the data. If dataframe rows are samples and columns are features.
+#' @param y Name of the SummarizedExperiment metadata or column of the dataframe containing the target variable.
+#'          Default to "y".
 #' @param featImpAgr Can be "mean" or "max_abs". It defines how the feature importance is aggregated.
 #' @param simData If TRUE, a simulated feature column is added to the dataframe to target a defined p-value that
 #' will serve as a benchmark for determining the significance thresholds of feature importances.
@@ -69,6 +70,49 @@ XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE,
                     modelType="default", corMethod="pearson",
                     defaultMethods=c("ttest", "ebayes", "cor", "lm", "rf", "shap", "lime"),
                     caretMethod="rf", caretTrainArgs=NULL, verbose=FALSE){
+    
+    # test the inputs
+    if (!is.data.frame(df) & !is(df, "SummarizedExperiment")){
+        stop("The df must be a dataframe or a SummarizedExperiment object")
+    }
+    if ( is(df, "SummarizedExperiment") ){
+        data_matrix <- assay(df, "counts")
+        data_matrix <- t(data_matrix)
+        metadata <- as.data.frame(colData(df))
+        df <- as.data.frame(cbind(data_matrix, y = metadata[[y]]))
+        colnames(df)[ncol(df)] <- y
+    }
+    if (!is.character(y)){
+        stop("The y must be a character")
+    }
+    if (! featImpAgr %in% c("mean", "max_abs")){
+        stop("The featImpAgr must be a 'mean' or 'max_abs'")
+    }
+    if (!is.logical(simData)){
+        stop("The simData must be a logical")
+    }
+    if (! simMethod %in% c("regrnorm", "rnorm")){
+        stop("The simMethod must be a 'regrnorm' or 'rnorm'")
+    }
+    if (!is.numeric(simPvalTarget)){
+        stop("The simPvalTarget must be a numeric")
+    }
+    if (!is.character(adjMethod)){
+        stop("The adjMethod must be a character")
+    }
+    if (!modelType %in% c("classification", "regression", "default")){
+        stop("The modelType must be a 'classification', 'regression' or 'default'")
+    }
+    if (!is.character(corMethod)){
+        stop("The corMethod must be a character")
+    }
+    if (!is.character(caretMethod)){
+        stop("The caretMethod must be a character")
+    }
+    if (!is.logical(verbose)){
+        stop("The verbose must be a logical")
+    }
+
     if (modelType == "default"){
         if (class(df[[y]]) == "character"){
             modelType <- "classification"

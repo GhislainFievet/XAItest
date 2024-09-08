@@ -52,72 +52,52 @@ library(XAItest)
 library(ggplot2)
 library(ggforce)
 library(gridExtra)
+library(SummarizedExperiment)
 ```
 
 
-## Creation of a simulated classification dataset
-- 50 samples of "A", and 50 samples of "B"
-- 10 features of normal distribution noise
-
-```{r create simu_data}
-# Samples
-df_simu_classif = data.frame(y=c(rep("A",50), rep("B",50)))
-# Noise columns
-set.seed(123)
-noise_columns <- paste0("norm_noise", sprintf("%02d", 1:10))
-df_simu_classif[noise_columns] <- lapply(noise_columns, function(column_name) {
-    mean <- runif(1, min = -10, max = 10)
-    sd <- runif(1, min = 1, max = 5)
-    rnorm(nrow(df_simu_classif), mean = mean, sd = sd)
-})
-
-```
-
-Now let's add 3 key features, the **t-test can detect the first 2, but not the last one**:
+## Load simulated classification dataset
+The dataset contains 50 samples of **A**, and 50 samples of **B**, with 10 noise features et 3 key features:
+- **norm_noise01**, **norm_noise02** ... 10 features of normal distribution noise
 - **diff_distrib01** different normal distributions between "A" and "B"
 - **diff_distrib02** different normal distributions between "A" and "B"
 - **bidistrib01** normal bidistribution for "A" and normal distribution for "B"
 
-```{r}
-rand_mean = runif(1, min = 2, max = 5)
-rand_sd = runif(1, min = 1, max = 5)
-mask_group = df_simu_classif[["y"]] == "A"
-df_simu_classif[["diff_distrib01"]][mask_group] <- rnorm(sum(mask_group), mean = rand_mean, sd = rand_sd)
-mask_group = df_simu_classif[["y"]] == "B"
-df_simu_classif[["diff_distrib01"]][mask_group] <- rnorm(sum(mask_group), mean = -rand_mean, sd = rand_sd)
+The t-test can detect **diff_distrib01** and **diff_distrib02** but not **bidistrib01**.
 
-rand_mean = runif(1, min = 3, max = 5)
-rand_sd = runif(1, min = 1, max = 5)
-mask_group = df_simu_classif[["y"]] == "A"
-df_simu_classif[["diff_distrib02"]][mask_group] <- rnorm(sum(mask_group), mean = rand_mean, sd = rand_sd)
-rand_mean = runif(1, min = -5, max = -3)
-rand_sd = runif(1, min = 1, max = 5)
-mask_group = df_simu_classif[["y"]] == "B"
-df_simu_classif[["diff_distrib02"]][mask_group] <- rnorm(sum(mask_group), mean = rand_mean, sd = rand_sd)
+```{r load classif simu data}
+se_path <- system.file("extdata", "seClassif.rds", package="adverSCarial")
+dataset_classif <- readDRS(se_path)
+
+data_matrix <- assay(dataset_classif, "counts")
+data_matrix <- t(data_matrix)
+metadata <- as.data.frame(colData(dataset_classif))
+df_simu_classif <- as.data.frame(cbind(data_matrix, y = metadata[['y']]))
+
+# Example with a dataframe.
+# df_path <- system.file("extdata", "dfClassif.txt", package="adverSCarial")
+# dataset_classif <- read.table(df_path)
+# df_simu_classif <- dataset_classif
 ```
 
-```{r}
-c_x1 <- rnorm(n = 25, mean = 1, sd = 1)
-c_x2 <- rnorm(n = 25, mean = 11, sd = 2)
-c_x <- c(c_x1, c_x2)
-c_y <- rnorm(n = 50, mean = 5, sd = 1)
-df_simu_classif$biDistrib = c(c_x, c_y)
-```
 
-We can see below how class A and class B are distributed accross the significant features: *diff_distrib01*, *diff_distrib02* and *biDistrib*.
+We can see below how class **A** and class **B** are distributed accross the features: **norm_noise01**, **norm_noise02**, **norm_noise03**, **norm_noise04**, **diff_distrib01**, **diff_distrib02** and **biDistrib**.
 
-```{r fig.width=10, fig.height=5}
-p1 <- ggplot(df_simu_classif, aes(x=diff_distrib01, y=diff_distrib02, color=y)) +
-    geom_point() + ggtitle("different normal distributions between A and B") + theme_bw()
-p2 <- ggplot(df_simu_classif, aes(x=norm_noise01, y=biDistrib, color=y)) +
-    geom_point() + ggtitle("normal bidistribution for A") + theme_bw()
-grid.arrange(p1, p2, ncol = 2, nrow = 1)
+```{r fig.width=12, fig.height=5}
+p1 <- ggplot(df_simu_classif, aes(x=norm_noise01, y=norm_noise02, color=y)) +
+    geom_point() + ggtitle("Noise features: norm_noise01 vs norm_noise02") + theme_bw()
+p2 <- ggplot(df_simu_classif, aes(x=diff_distrib01, y=diff_distrib02, color=y)) +
+    geom_point() + ggtitle("Normal distributions: diff_distrib01 vs diff_distrib02") + theme_bw()
+p3 <- ggplot(df_simu_classif, aes(x=norm_noise03, y=biDistrib, color=y)) +
+    geom_point() + ggtitle("Normal bidistribution: bidistrib01 vs norm_noise03") + theme_bw()
+grid.arrange(p1, p2, p3, ncol = 3, nrow = 1)
 ```
 
 We employ the XAI.test function to evaluate the p-values and feature importance of each feature. The parameter *simData* is set to TRUE, which instructs the function to generate a new feature named *simFeat*, designed to achieve a specified p-value (column *ttest_adjPval*), set at *simPvalTarget = 0.01*. The purpose of *simFeat* is to establish a significance threshold for assessing feature importance values.
 
 ```{r XAI.test 1 , echo=FALSE}
-objXAI <- XAI.test(df_simu_classif, "y", simData = TRUE, simPvalTarget = 0.01)
+set.seed(1)
+objXAI <- XAI.test(dataset_classif, "y", simData = TRUE, simPvalTarget = 0.01)
 ```
 
 ```{r}
@@ -144,6 +124,7 @@ The *plotModel* function is used to visualize the results of these predictive mo
 In this section, we aim to evaluate the performance of each model after removing the *diff_distrib01* and *diff_distrib02* features from the dataset, leaving only noise and the *biDistrib* features.
 
 ```{r}
+set.seed(1)
 objXAI <- XAI.test(df_simu_classif[,setdiff(colnames(df_simu_classif),
                                             c("diff_distrib01", "diff_distrib02"))],
                   simData=TRUE)
@@ -167,22 +148,12 @@ mapPvalImportance(objXAI)
 
 # XAI.test on a regression dataset
 
-First, we create a regression toy example of 100 samples, with 5 noise features, and a *y* feature computed from one of the noise feature. We will investigate if the feature used to compute *y* can be identified using correlation, linear modeling, or feature importance metrics.
+First, we load a regression toy example of 100 samples, with 5 noise features, and a *y* feature computed from one of the noise feature. We will investigate if the feature used to compute *y* can be identified using correlation, linear modeling, or feature importance metrics.
 
-## Creation of a regression simulated dataset
-- 2 features of normal distribution noise
-- 3 features of uniform distribution noise
-- a *y* feature computed from one of the normal distribution noise
-
-```{r}
-set.seed(123)
-df_simu_regr <- data.frame(norm_noise1=rnorm(100,1,1))
-df_simu_regr$norm_noise1 <- rnorm(100,2,2)
-df_simu_regr$norm_noise2 <- rnorm(100,-3,3)
-df_simu_regr$unif_noise1 <- runif(100,0,1)
-df_simu_regr$unif_noise2 <- runif(100,0,2)
-df_simu_regr$unif_noise3 <- runif(100,-3,3)
-```
+## Load regression simulated dataset
+- **norm_noise1**, **norm_noise2**: normal distribution noise features
+- **unif_noise1**, **unif_noise2** and **unif_noise3**: uniform distribution noise features
+- **y** feature is aparabole computed from the **norm_noise2** values.
 
 ### Function of parabole
 This function is invisible to the correlation test.
@@ -199,19 +170,34 @@ transfo_parab <- function(xs){
     
     return (y)
 }
+
+# df_simu_regr$y <- transfo_parab(df_simu_regr$norm_noise2)
 ```
 
-The *y* feature is a parabole computed from the *norm_noise2* feature.
+```{r load regress simu data}
+se_path <- system.file("extdata", "dfRegress.rds", package="adverSCarial")
+dataset_regress <- readDRS(se_path)
+
+data_matrix <- assay(dataset_regress, "counts")
+data_matrix <- t(data_matrix)
+metadata <- as.data.frame(colData(dataset_regress))
+df_simu_regr <- as.data.frame(cbind(data_matrix, y = metadata[['y']]))
+
+# Example with a dataframe.
+# df_path <- system.file("extdata", "dfRegress.txt", package="adverSCarial")
+# dataset_regress <- read.table(df_path)
+# df_simu_regr <- dataset_regress
+```
 
 ```{r}
-df_simu_regr$y <- transfo_parab(df_simu_regr$norm_noise2)
 ggplot(df_simu_regr, aes(x=norm_noise2, y=y)) + geom_point() + theme_bw()
 ```
 
 We employ the *XAI.test* function to evaluate the p-values and feature importance of each feature. The parameter *simData* is set to TRUE, which instructs the function to generate a new feature named *simFeat*, which is designed to achieve a specified p-value (column *ttest_adjPval*), set at *simPvalTarget = 0.01*. The purpose of *simFeat* is to establish a significance threshold for assessing feature importance values.
 
 ```{r}
-regr_results <- XAI.test(df_simu_regr, "y", simData=T, simPvalTarget = 0.01)
+set.seed(1)
+regr_results <- XAI.test(dataset_regress, "y", simData=T, simPvalTarget = 0.01)
 regr_results@metricsTable
 ```
 
@@ -257,7 +243,6 @@ The function should return:
 - *model* (optional): the model used to compute feature importance, employed in the *plotModel* function when *modelPredictions* is unavailable.
 
 ```{r}
-# featureImportanceXGBoost <- function(df, y="y", featImpAgr="mean"){
 featureImportanceXGBoost <- function(df, y="y", ...){
     # Prepare data
     matX <- as.matrix(df[, colnames(df) != y])
@@ -293,8 +278,8 @@ featureImportanceXGBoost <- function(df, y="y", ...){
 ```
 
 ```{r}
-set.seed(123)
-results <- XAI.test(df_simu_classif,"y", simData = T,
+set.seed(1)
+results <- XAI.test(dataset_classif,"y", simData = T,
                    simPvalTarget = 0.0005,
                    customFeatImps=list("XGB_SHAP_feat_imp"=featureImportanceXGBoost),
                   )
