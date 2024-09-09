@@ -3,6 +3,9 @@ modelsOverview <- function(objXAI, verbose=FALSE){
     if(!is(objXAI, "objXAI")){
         stop("The object must be a objXAI class")
     }
+    if(!is.logical(verbose)){
+        stop("verbose must be a logical value")
+    }
     if (verbose){
         print(paste("The models are: ", names(objXAI@models)))
     }

@@ -37,7 +37,14 @@
 #' @export
 
 
-getFeatImpThresholds <- function(df, refPvalColumn=NULL, featImpColumns=NULL, refPval=0.05){
+getFeatImpThresholds <- function(df, refPvalColumn=NULL,
+                    featImpColumns=NULL, refPval=0.05){
+    if(!is.data.frame(df)){
+        stop("df must be a dataframe")
+    }
+    if (!is.numeric(refPval)){
+        stop("refPval must be a numeric value")
+    }
     if (is.null(refPvalColumn)){
         refPvalColumn <- grep("adjpval", colnames(df), ignore.case=TRUE, value=TRUE)
         if (length(refPvalColumn) > 0){

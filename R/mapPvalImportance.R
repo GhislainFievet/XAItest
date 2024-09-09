@@ -37,7 +37,14 @@
 #'
 #' @export
 
-mapPvalImportance <- function(objXAI, refPvalColumn=NULL, featImpColumns=NULL, pvalColumns = NULL, refPval=0.05){
+mapPvalImportance <- function(objXAI, refPvalColumn=NULL,
+        featImpColumns=NULL, pvalColumns = NULL, refPval=0.05){
+    if (!is(objXAI, "objXAI")){
+        stop("objXAI must be an object of class objXAI")
+    }
+    if(!is.numeric(refPval)){
+        stop("refPval must be a numeric value")
+    }
     df <- objXAI@metricsTable
     if (is.null(pvalColumns)){
         pvalColumns <- grep("pval", colnames(df), ignore.case=TRUE, value=TRUE)
