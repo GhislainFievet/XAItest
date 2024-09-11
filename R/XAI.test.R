@@ -537,8 +537,9 @@ featureImportanceShap <- function(df, y="y", featImpAgr="mean",
         return(list(featImps = results, model = fit))
     } else {
         myPredictions = predict(fit, dfOr)
-        myPredictions[myPredictions < 0.5] = myA
-        myPredictions[myPredictions >= 0.5] = myB
+        tempMyPreds <- myPredictions
+        myPredictions[tempMyPreds < 0.5] = myA
+        myPredictions[tempMyPreds >= 0.5] = myB
         return(list(featImps = results, modelPredictions = myPredictions))
     }
 }
