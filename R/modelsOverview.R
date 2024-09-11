@@ -32,7 +32,7 @@ modelsOverview <- function(objXAI, verbose=FALSE){
                 pred <- objXAI@modelPredictions[[x]]
             } else {
                 model <- objXAI@models[[x]]
-                pred <- predict(model, newdata = df2predict)
+                pred <- unlist(unname(predict(model, newdata = df2predict)))
                 # If 'pred' is numeric, this indicates that the categorical
                 # y was converted to 0 and 1. Therefore, we transform them back
                 # to categories.
@@ -71,7 +71,7 @@ modelsOverview <- function(objXAI, verbose=FALSE){
                 pred <- objXAI@modelPredictions[[x]]
             } else {
                 model <- objXAI@models[[x]]
-                pred <- predict(model, newdata = df2predict)
+                pred <- unlist(unname(predict(model, newdata = df2predict)))
             }
             mse <- mean((df2predict[[objXAI@args$y]] - pred)^2)
             rmse <- sqrt(mse)
