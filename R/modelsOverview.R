@@ -1,3 +1,12 @@
+#' Models Overview
+#' 
+#' Returns **mse**, **rmse**, **mae** and **r2** of regression models or
+#' **accuracy**, **precision**, **recall** and **f1_score** of classification models.
+#' 
+#' @param objXAI An object of class objXAI.
+#' 
+#' 
+
 #' @export
 modelsOverview <- function(objXAI, verbose=FALSE){
     if(!is(objXAI, "objXAI")){
@@ -18,16 +27,20 @@ modelsOverview <- function(objXAI, verbose=FALSE){
             unique(df2predict[[objXAI@args$y]]))
         predRows <- paste0("truth_", predRows[,1], "__predicted_", predRows[,2])
         predRows <- predRows[order(predRows)]
-        results <- sapply(names(objXAI@models), function(x){
-            model <- objXAI@models[[x]]
-            pred <- predict(model, newdata = df2predict)
-            # If 'pred' is numeric, this indicates that the categorical
-            # y was converted to 0 and 1. Therefore, we transform them back
-            # to categories.
-            if (is.numeric(pred)){
-                tempPred <- pred
-                pred[tempPred < 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[1]
-                pred[tempPred >= 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[2]
+        results <- sapply(unique(c(names(objXAI@models), names(objXAI@modelPredictions))), function(x){
+            if ( x %in% names(objXAI@modelPredictions)){
+                pred <- objXAI@modelPredictions[[x]]
+            } else {
+                model <- objXAI@models[[x]]
+                pred <- predict(model, newdata = df2predict)
+                # If 'pred' is numeric, this indicates that the categorical
+                # y was converted to 0 and 1. Therefore, we transform them back
+                # to categories.
+                if (is.numeric(pred)){
+                    tempPred <- pred
+                    pred[tempPred < 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[1]
+                    pred[tempPred >= 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[2]
+                }
             }
             predAcc <- paste0("truth_", df2predict[[objXAI@args$y]], "__predicted_", pred)
             rp1 <- sum(predAcc == predRows[1])
@@ -53,9 +66,13 @@ modelsOverview <- function(objXAI, verbose=FALSE){
                 paste0("f1_score_", categB))
     }
     if ( objXAI@args$modelType == "regression"){
-        results <- sapply(names(objXAI@models), function(x){
-            model <- objXAI@models[[x]]
-            pred <- predict(model, newdata = df2predict)
+        results <- sapply(unique(c(names(objXAI@models), names(objXAI@modelPredictions))), function(x){
+            if ( x %in% names(objXAI@modelPredictions)){
+                pred <- objXAI@modelPredictions[[x]]
+            } else {
+                model <- objXAI@models[[x]]
+                pred <- predict(model, newdata = df2predict)
+            }
             mse <- mean((df2predict[[objXAI@args$y]] - pred)^2)
             rmse <- sqrt(mse)
             mae <- mean(abs(df2predict[[objXAI@args$y]] - pred))

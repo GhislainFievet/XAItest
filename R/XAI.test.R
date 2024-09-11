@@ -51,6 +51,7 @@
 #' @return A dataframe containing the pvalues and the feature importances of each features computed by the different methods.
 #' @examples 
 #' 
+#' # With a dataframe
 #' df <- data.frame(
 #'   feature1 = rnorm(100),
 #'   feature2 = rnorm(100, mean = 5),
@@ -60,6 +61,14 @@
 #' )
 #' 
 #' results <- XAI.test(df, y = "y", verbose = TRUE)
+#' results
+#' 
+#' # With a SummarizedExperiment
+#' assays <- SimpleList(counts = as.matrix(t(df[, 1:4])))
+#' colData <- DataFrame(y = df[,"y"])
+#' se <- SummarizedExperiment(assays = assays,
+#'                           colData = colData)
+#' results <- XAI.test(se, y = "y", verbose = TRUE)
 #' results
 #' 
 #' @export 
