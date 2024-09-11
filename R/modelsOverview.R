@@ -38,8 +38,8 @@ modelsOverview <- function(objXAI, verbose=FALSE){
                 # to categories.
                 if (is.numeric(pred)){
                     tempPred <- pred
-                    pred[tempPred < 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[1]
-                    pred[tempPred >= 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[2]
+                    pred[tempPred < 0.5] <- unique(objXAI@data[[objXAI@args$y]])[1]
+                    pred[tempPred >= 0.5] <- unique(objXAI@data[[objXAI@args$y]])[2]
                 }
             }
             predAcc <- paste0("truth_", df2predict[[objXAI@args$y]], "__predicted_", pred)
