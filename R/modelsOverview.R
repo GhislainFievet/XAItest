@@ -5,7 +5,38 @@
 #' 
 #' @param objXAI An object of class objXAI.
 #' 
+#' @examples
 #' 
+#' # Example with SummarizedExperiment object with a regression dataset.
+#' 
+#' df <- data.frame(
+#'  feature1 = rnorm(100),
+#'  feature2 = rnorm(100, mean = 5),
+#'  feature3 = runif(100, min = 0, max = 10),
+#'  feature4 = c(rnorm(50), rnorm(50, mean = 5)),
+#'  y = 1:100
+#' )
+#'
+#' assays <- SimpleList(counts = as.matrix(t(df[, 1:4])))
+#' colData <- DataFrame(y = df[,"y"])
+#' se <- SummarizedExperiment(assays = assays,
+#'                            colData = colData)
+#' 
+#' resultsRegr <- XAI.test(se, y = "y", verbose = TRUE)
+#' 
+#' modelsOverview(resultsRegr)
+#'
+#' # Example with a dataframe with a classification dataset.
+#' df <- data.frame(
+#'  feature1 = rnorm(100),
+#'  feature2 = rnorm(100, mean = 5),
+#'  feature3 = runif(100, min = 0, max = 10),
+#'  feature4 = c(rnorm(50), rnorm(50, mean = 5)),
+#'  y = c(rep("Cat1", 50), rep("Cat2", 50))
+#' )
+#' resultsClassif <- XAI.test(df, y = "y", verbose = TRUE)
+#'
+#' modelsOverview(resultsClassif)
 
 #' @export
 modelsOverview <- function(objXAI, verbose=FALSE){

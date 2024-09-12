@@ -2,7 +2,7 @@
 #' for feature importance and p-value columns.
 #'
 #'
-#' @param df A dataframe containing both p-value columns and feature importance columns.
+#' @param objXAI An object of class objXAI.
 #' @param refPvalColumn Optional; the name of the column containing reference p-values for feature importance.
 #'   If not provided, the function will attempt to auto-detect.
 #' @param featImpColumns Optional; a vector of column names containing feature importance values.

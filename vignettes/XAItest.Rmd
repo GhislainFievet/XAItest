@@ -100,8 +100,8 @@ grid.arrange(p1, p2, p3, ncol = 3, nrow = 1)
 
 We employ the XAI.test function to evaluate the p-values and feature importance of each feature. The parameter *simData* is set to TRUE, which instructs the function to generate a new feature named *simFeat*, designed to achieve a specified p-value (column *ttest_adjPval*), set at *simPvalTarget = 0.01*. The purpose of *simFeat* is to establish a significance threshold for assessing feature importance values.
 
-```{r XAI.test 1 , echo=FALSE}
-set.seed(1)
+```{r XAI.test 1 , warning=FALSE}
+set.seed(123)
 objXAI <- XAI.test(dataset_classif, "y", simData = TRUE, simPvalTarget = 0.01)
 ```
 
@@ -128,8 +128,8 @@ The *plotModel* function is used to visualize the results of these predictive mo
 
 In this section, we aim to evaluate the performance of each model after removing the *diff_distrib01* and *diff_distrib02* features from the dataset, leaving only noise and the *biDistrib* features.
 
-```{r}
-set.seed(1)
+```{r xai2, warning=FALSE}
+set.seed(123)
 objXAI <- XAI.test(df_simu_classif[,setdiff(colnames(df_simu_classif),
                                             c("diff_distrib01", "diff_distrib02"))],
                   simData=TRUE)
@@ -205,8 +205,8 @@ ggplot(df_simu_regr, aes(x=norm_noise2, y=y)) + geom_point() + theme_bw()
 
 We employ the *XAI.test* function to evaluate the p-values and feature importance of each feature. The parameter *simData* is set to TRUE, which instructs the function to generate a new feature named *simFeat*, which is designed to achieve a specified p-value (column *ttest_adjPval*), set at *simPvalTarget = 0.01*. The purpose of *simFeat* is to establish a significance threshold for assessing feature importance values.
 
-```{r}
-set.seed(1)
+```{r xai3, warning=FALSE}
+set.seed(123)
 regr_results <- XAI.test(dataset_regress, "y", simData=T, simPvalTarget = 0.01)
 regr_results@metricsTable
 ```
@@ -287,8 +287,8 @@ featureImportanceXGBoost <- function(df, y="y", ...){
 }
 ```
 
-```{r}
-set.seed(1)
+```{r xai4, warning=FALSE}
+set.seed(123)
 results <- XAI.test(dataset_classif,"y", simData = T,
                    simPvalTarget = 0.0005,
                    customFeatImps=list("XGB_SHAP_feat_imp"=featureImportanceXGBoost),
