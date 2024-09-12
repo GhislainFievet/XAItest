@@ -14,6 +14,8 @@ mapPvalImportance(
 )
 }
 \arguments{
+\item{objXAI}{An object of class objXAI.}
+
 \item{refPvalColumn}{Optional; the name of the column containing reference p-values for feature importance.
 If not provided, the function will attempt to auto-detect.}
 
@@ -24,8 +26,6 @@ If not provided, the function will attempt to auto-detect.}
 If not provided, the function searches for columns containing "pval" (case insensitive).}
 
 \item{refPval}{The reference p-value threshold used for filtering. Defaults to 0.05.}
-
-\item{df}{A dataframe containing both p-value columns and feature importance columns.}
 }
 \value{
 A datatable object with color-coded cells based on significance thresholds for feature importance

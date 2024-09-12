@@ -100,6 +100,7 @@ significance metrics.
 }
 \examples{
 
+# With a dataframe
 df <- data.frame(
   feature1 = rnorm(100),
   feature2 = rnorm(100, mean = 5),
@@ -109,6 +110,14 @@ df <- data.frame(
 )
 
 results <- XAI.test(df, y = "y", verbose = TRUE)
+results
+
+# With a SummarizedExperiment
+assays <- SimpleList(counts = as.matrix(t(df[, 1:4])))
+colData <- DataFrame(y = df[,"y"])
+se <- SummarizedExperiment(assays = assays,
+                          colData = colData)
+results <- XAI.test(se, y = "y", verbose = TRUE)
 results
 
 }
