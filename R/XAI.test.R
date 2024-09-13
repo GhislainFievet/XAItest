@@ -88,6 +88,9 @@ XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE,
         data_matrix <- assay(df, "counts")
         data_matrix <- t(data_matrix)
         metadata <- as.data.frame(colData(df))
+        if ( is.factor(metadata[[y]]) ){
+            metadata[[y]] <- as.character(metadata[[y]])
+        }
         df <- as.data.frame(cbind(data_matrix, y = metadata[[y]]))
         colnames(df)[ncol(df)] <- y
         for (col in names(df)) {
