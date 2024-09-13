@@ -19,6 +19,5 @@ contXAI <- methods::setClass("objXAI",
         ))
 setMethod("show", "objXAI",
         function(object) {
-            print(object@metricsTable[1:min(5, nrow(object@metricsTable)),
-                                    1:min(7, ncol(object@metricsTable))])
+            print(object@metricsTable[1:min(5, nrow(object@metricsTable)),])
         })
