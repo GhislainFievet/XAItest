@@ -454,6 +454,12 @@ pValTTest <- function(df, y="y", adjMethod='bonferroni'){
     ttestPvals <- apply(t(df[,featCols]), 1, function(x) {
         valCateg1 <- x[df[[y]] == unique(df[[y]])[1]]
         valCateg2 <- x[df[[y]] == unique(df[[y]])[2]]
+        if (length(unique(c(valCateg1, valCateg2))) == 1){
+            return(1)
+        }
+        if ( length(unique(valCateg1)) == 1 & length(unique(valCateg2)) == 1){
+            return(0)
+        }
         pval <- t.test(valCateg1, valCateg2)$p.value
         pval
     })
