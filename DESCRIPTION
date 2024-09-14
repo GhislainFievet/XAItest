@@ -18,7 +18,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 biocViews: Software, StatisticalMethod, FeatureExtraction, Classification, Regression
-Suggests: knitr, ggplot2, ggforce, shapr
+Suggests: knitr, ggplot2, ggforce, shapr, airway
 Imports: limma, randomForest, kernelshap, caret, lime, DT, methods, SummarizedExperiment
 VignetteBuilder: knitr
 Author: Prénom Nom [aut, cre] (<adresse_email@exemple.com>)

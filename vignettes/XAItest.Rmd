@@ -43,8 +43,7 @@ BiocManager::install(version="devel")
 BiocManager::install('XAItest')
 ```
 
-# XAI.test on a classification dataset
-First, we create a toy example of 100 samples (50 from class A and 50 from class B), each with 13 features. We will investigate which features can be identified using a t-test or linear modeling, and which can be detected through feature importance metrics
+# Get feature importance of a SummarizedExperiment dataset
 
 ```{r load libs}
 # Load the libraries
@@ -54,7 +53,23 @@ library(ggforce)
 library(gridExtra)
 library(SummarizedExperiment)
 ```
+We consider the RNA-seq data from the *airway* dataset, which contains read counts per gene for airway smooth muscles stored in a *RangedSummarizedExperiment* object. The metadata contains a column *dex*, which indicates whether the subjects are treated or untreated. The *XAI.test* function, by default, builds random forest models to predict a target, here the 'dex' treatment status, and calculates the associated gene feature importances.
 
+```{r}
+data(airway, package="airway")
+se <- airway
+```
+
+```{r first XAI.test, warning=FALSE}
+results <- XAI.test(se[1:100,], y = "dex", verbose = TRUE, simData = T)
+```
+
+```
+results
+```
+
+# Detect new key features on a classification dataset
+On a toy dataset we will investigate which features can be identified using a t-test or linear modeling, and which can be detected through feature importance metrics.
 
 ## Load simulated classification dataset
 The dataset contains 50 samples of **A**, and 50 samples of **B**, with 10 noise features et 3 key features:
@@ -63,7 +78,7 @@ The dataset contains 50 samples of **A**, and 50 samples of **B**, with 10 noise
 - **diff_distrib02** different normal distributions between "A" and "B"
 - **bidistrib01** normal bidistribution for "A" and normal distribution for "B"
 
-The t-test can detect **diff_distrib01** and **diff_distrib02** but not **bidistrib01**.
+The t-test can detect **diff_distrib01** and **diff_distrib02** but not **bidistrib01**. 
 
 ```{r load classif simu data}
 se_path <- system.file("extdata", "seClassif.rds", package="XAItest")
@@ -151,7 +166,7 @@ mapPvalImportance(objXAI)
 ```
 ![mapPvalImportance2](im/dt2.png)
 
-# XAI.test on a regression dataset
+# Detect new key features on a regression dataset
 
 First, we load a regression toy example of 100 samples, with 5 noise features, and a *y* feature computed from one of the noise feature. We will investigate if the feature used to compute *y* can be identified using correlation, linear modeling, or feature importance metrics.
 
