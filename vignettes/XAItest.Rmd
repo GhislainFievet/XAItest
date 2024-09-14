@@ -45,7 +45,7 @@ BiocManager::install('XAItest')
 
 # Get feature importance of a SummarizedExperiment dataset
 
-```{r load libs}
+```{r load libs, message=F}
 # Load the libraries
 library(XAItest)
 library(ggplot2)
@@ -64,7 +64,7 @@ se <- airway
 results <- XAI.test(se[1:100,], y = "dex", verbose = TRUE, simData = T)
 ```
 
-```
+```{r}
 results
 ```
 
@@ -105,11 +105,11 @@ We can see below how class **A** and class **B** are distributed accross the fea
 
 ```{r fig.width=12, fig.height=5}
 p1 <- ggplot(df_simu_classif, aes(x=norm_noise01, y=norm_noise02, color=y)) +
-    geom_point() + ggtitle("Noise features: norm_noise01 vs norm_noise02") + theme_bw()
+    geom_point() + ggtitle("Noise features\nnorm_noise01 vs norm_noise02") + theme_bw()
 p2 <- ggplot(df_simu_classif, aes(x=diff_distrib01, y=diff_distrib02, color=y)) +
-    geom_point() + ggtitle("Normal distributions: diff_distrib01 vs diff_distrib02") + theme_bw()
+    geom_point() + ggtitle("Normal distributions\ndiff_distrib01 vs diff_distrib02") + theme_bw()
 p3 <- ggplot(df_simu_classif, aes(x=norm_noise03, y=biDistrib, color=y)) +
-    geom_point() + ggtitle("Normal bidistribution: bidistrib01 vs norm_noise03") + theme_bw()
+    geom_point() + ggtitle("Normal bidistribution\nbidistrib01 vs norm_noise03") + theme_bw()
 grid.arrange(p1, p2, p3, ncol = 3, nrow = 1)
 ```
 
@@ -130,7 +130,7 @@ The *mapPvalImportance* function reveals the significance of the feature importa
 mapPvalImportance(objXAI)
 ```
 
-![mapPvalImportance1](im/dt1.png)
+![ ](im/dt1.png)
 
 We can see that the **biDistrib** feature **is not detected by the p-values**, but is detected by the **feature importance** metrics.
 
@@ -164,7 +164,7 @@ grid.arrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```{r mapPvalImportance2, eval=FALSE}
 mapPvalImportance(objXAI)
 ```
-![mapPvalImportance2](im/dt2.png)
+![ ](im/dt2.png)
 
 # Detect new key features on a regression dataset
 
@@ -229,12 +229,12 @@ regr_results@metricsTable
 ```{r mapPvalImportance3, eval=FALSE}
 mapPvalImportance(regr_results, refPvalColumn = "cor_adjPval", refPval = 0.01)
 ```
-![mapPvalImportance3](im/dt3.png)
+![ ](im/dt3.png)
 
 The relationship between the *norm_noise2* and *y* features is not apparent through correlation and linear modeling statistical tests, but is revealed by the **Random Forest built-in feature importance**, as well as its **SHAP** and **LIME** values.
 
 ## Plot each model
-Similar to the classification case, the use of the *XAI.test* function creates predictive models that we can visualize with the plotModel function. This provides insights into why the *norm_noise2* feature was detected by feature importance metrics and not by linear modeling.
+Similar to the classification case, the use of the *XAI.test* function creates predictive models that we can visualize with the *plotModel* function. This provides insights into why the *norm_noise2* feature was detected by feature importance metrics and not by linear modeling.
 
 ```{r}
 regr_results@args$modelType
@@ -315,7 +315,7 @@ The *mapPvalImportance* function reveals that both the custom *XGB_SHAP_feat_imp
 ```{r mapPvalImportance4, eval=FALSE}
 mapPvalImportance(results, refPvalColumn = "ttest_adjPval", refPval = 0.0005)
 ```
-![mapPvalImportance4](im/dt4.png)
+![ ](im/dt4.png)
 
 ```{r}
 # Plot of the XGboost generated model
