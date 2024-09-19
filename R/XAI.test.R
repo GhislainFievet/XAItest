@@ -51,6 +51,8 @@
 #' @return A dataframe containing the pvalues and the feature importances of each features computed by the different methods.
 #' @examples 
 #' 
+#' library(S4Vectors)
+#' 
 #' # With a dataframe
 #' df <- data.frame(
 #'   feature1 = rnorm(100),

@@ -1,9 +1,9 @@
-#' contXAI class
+#' objXAI class
 #' 
-#' \code{contXAI} is a class used to store the output values
+#' \code{objXAI} is a class used to store the output values
 #' of the \code{XAI.test} function.
-#' @rdname contXAI
-#' @return A contXAI object
+#' @rdname objXAI
+#' @return A objXAI object
 #' @examples
 #' 
 #' a=1

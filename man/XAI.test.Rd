@@ -100,6 +100,8 @@ significance metrics.
 }
 \examples{
 
+library(S4Vectors)
+
 # With a dataframe
 df <- data.frame(
   feature1 = rnorm(100),

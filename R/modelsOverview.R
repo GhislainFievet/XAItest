@@ -9,6 +9,8 @@
 #' 
 #' # Example with SummarizedExperiment object with a regression dataset.
 #' 
+#' library(S4Vectors)
+#' 
 #' df <- data.frame(
 #'  feature1 = rnorm(100),
 #'  feature2 = rnorm(100, mean = 5),

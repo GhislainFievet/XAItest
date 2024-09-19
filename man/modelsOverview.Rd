@@ -17,6 +17,8 @@ Returns \strong{mse}, \strong{rmse}, \strong{mae} and \strong{r2} of regression 
 
 # Example with SummarizedExperiment object with a regression dataset.
 
+library(S4Vectors)
+
 df <- data.frame(
  feature1 = rnorm(100),
  feature2 = rnorm(100, mean = 5),

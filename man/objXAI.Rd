@@ -4,12 +4,12 @@
 \name{objXAI-class}
 \alias{objXAI-class}
 \alias{contXAI}
-\title{contXAI class}
+\title{objXAI class}
 \value{
-A contXAI object
+A objXAI object
 }
 \description{
-\code{contXAI} is a class used to store the output values
+\code{objXAI} is a class used to store the output values
 of the \code{XAI.test} function.
 }
 \examples{
