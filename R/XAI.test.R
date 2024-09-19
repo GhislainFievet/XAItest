@@ -52,6 +52,7 @@
 #' @examples 
 #' 
 #' library(S4Vectors)
+#' library(SummarizedExperiment)
 #' 
 #' # With a dataframe
 #' df <- data.frame(

@@ -10,6 +10,7 @@
 #' # Example with SummarizedExperiment object with a regression dataset.
 #' 
 #' library(S4Vectors)
+#' library(SummarizedExperiment)
 #' 
 #' df <- data.frame(
 #'  feature1 = rnorm(100),
