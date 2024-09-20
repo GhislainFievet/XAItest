@@ -8,6 +8,8 @@ modelsOverview(objXAI, verbose = FALSE)
 }
 \arguments{
 \item{objXAI}{An object of class objXAI.}
+
+\item{verbose}{Logical; if TRUE, prints the models names.}
 }
 \description{
 Returns \strong{mse}, \strong{rmse}, \strong{mae} and \strong{r2} of regression models or
