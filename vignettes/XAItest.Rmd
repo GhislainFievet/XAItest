@@ -61,7 +61,7 @@ se <- airway
 ```
 
 ```{r first XAI.test, warning=FALSE}
-results <- XAI.test(se[1:100,], y = "dex", verbose = TRUE, simData = T)
+results <- XAI.test(se[1:100,], y = "dex", verbose = TRUE, simData = TRUE)
 ```
 
 ```{r}
@@ -222,7 +222,7 @@ We employ the *XAI.test* function to evaluate the p-values and feature importanc
 
 ```{r xai3, warning=FALSE}
 set.seed(123)
-regr_results <- XAI.test(dataset_regress, "y", simData=T, simPvalTarget = 0.01)
+regr_results <- XAI.test(dataset_regress, "y", simData=TRUE, simPvalTarget = 0.01)
 regr_results@metricsTable
 ```
 
@@ -304,7 +304,7 @@ featureImportanceXGBoost <- function(df, y="y", ...){
 
 ```{r xai4, warning=FALSE}
 set.seed(123)
-results <- XAI.test(dataset_classif,"y", simData = T,
+results <- XAI.test(dataset_classif,"y", simData = TRUE,
                    simPvalTarget = 0.0005,
                    customFeatImps=list("XGB_SHAP_feat_imp"=featureImportanceXGBoost),
                   )

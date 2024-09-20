@@ -4,6 +4,7 @@
 #' **accuracy**, **precision**, **recall** and **f1_score** of classification models.
 #' 
 #' @param objXAI An object of class objXAI.
+#' @param verbose Logical; if TRUE, prints the models names.
 #' 
 #' @examples
 #' 

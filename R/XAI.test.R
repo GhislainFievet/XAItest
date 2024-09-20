@@ -134,7 +134,7 @@ XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE,
     }
 
     if (modelType == "default"){
-        if (class(df[[y]]) == "character"){
+        if (is(df[[y]], "character")){
             modelType <- "classification"
         }
         if (is.numeric(df[[y]])){
@@ -404,7 +404,7 @@ pValCor <- function(df, y="y", adjMethod='bonferroni', corMethod="pearson"){
 }
 
 pValLM <- function(df, y="y", adjMethod='bonferroni'){
-    if (class(df[[y]]) == "character"){
+    if (is(df[[y]], "character")){
         df[[y]][df[[y]] == unique(df[[y]])[1]] <- 0
         df[[y]][df[[y]] == unique(df[[y]])[2]] <- 1
     }
