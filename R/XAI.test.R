@@ -339,7 +339,7 @@ XAI.test <- function(df, y="y", featImpAgr="mean", simData=FALSE,
         results[[custFI]] <- cfi$featImps[rownames(results)]
     }
     if ( length(grep("pval", colnames(results))) > 0){
-        results <- results[order(results[[grep("pval", colnames(results), value=T)[1]]]),]
+        results <- results[order(results[[grep("pval", colnames(results), value=TRUE)[1]]]),]
     }
     if(simData){
         return(list(dataSim=df,

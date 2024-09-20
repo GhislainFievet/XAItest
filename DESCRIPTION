@@ -1,6 +1,6 @@
 Package: XAItest 
 Title: XAItest: Enhancing Feature Discovery with eXplainable AI
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(
     person("Ghislain", "FIEVET", , "ghislain.fievet@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0337-7327")),
