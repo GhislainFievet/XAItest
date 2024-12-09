@@ -61,8 +61,8 @@ setMethod("getMetricsTable", "ObjXAI", function(object) {
 #' This method sets the metrics table for an ObjXAI object.
 #' @param object An ObjXAI object.
 #' @param value A data frame to set as the metrics table.
-#' @rdname getMetricsTable
-#' @aliases getMetricsTable,ObjXAI-method
+#' @rdname setMetricsTable
+#' @aliases setMetricsTable,ObjXAI-method
 #' @return The modified ObjXAI object.
 #' @examples
 #' 
