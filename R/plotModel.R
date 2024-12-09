@@ -2,8 +2,9 @@
 #' 
 #' This function plots the model.
 #' 
-#' @param objXAI The objXAI object create with the XAItest function
-#' @param modelName The name of the model, can be found in 'names(objXAI@models)'
+#' @param objXAI The ObjXAI object created with the XAItest function
+#' @param modelName The name of the model, can be found in
+#'      'names(objXAI@models)'
 #' @param xFeature The x feature
 #' @param yFeature The y feature
 #' 
@@ -19,8 +20,8 @@
 #' 
 #' @export
 plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
-    if(!is(objXAI, "objXAI")){
-        stop("The object must be a objXAI class")
+    if(!is(objXAI, "ObjXAI")){
+        stop("The object must be a ObjXAI class")
     }
     if(!is.character(modelName)){
         stop("The modelName must be a character")
@@ -31,7 +32,7 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
     if(!is.character(yFeature)){
         stop("The yFeature must be a character")
     }
-    if(!modelName %in% c(names(objXAI@models), names(objXAI@modelPredictions))){
+    if(!modelName %in% c(names(objXAI@models),names(objXAI@modelPredictions))){
         stop("The modelName is not in the models list")
     }
     if(!objXAI@args$simData && !xFeature %in% colnames(objXAI@data)){
@@ -66,12 +67,14 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
             if (objXAI@args$simData) {
                 pred <- predict(model, newdata = objXAI@dataSim)
                 # If 'pred' is numeric, this indicates that the categorical
-                # target was converted to 0 and 1. Therefore, we transform them back
-                # to categories.
+                # target was converted to 0 and 1. Therefore, we transform
+                # them back to categories.
                 if (is.numeric(pred)){
                     tempPred <- pred
-                    pred[tempPred < 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[1]
-                    pred[tempPred >= 0.5] <- unique(objXAI@dataSim[[objXAI@args$y]])[2]
+                    a_a <- unique(objXAI@dataSim[[objXAI@args$y]])[1]
+                    pred[tempPred < 0.5] <- a_a
+                    a_a <- unique(objXAI@dataSim[[objXAI@args$y]])[2]
+                    pred[tempPred >= 0.5] <- a_a
                 }
                 truth <- objXAI@dataSim[[objXAI@args$y]]
                 x <- objXAI@dataSim[, xFeature]
@@ -80,15 +83,18 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
                 pred <- predict(model, newdata = objXAI@data)
                 if (is.numeric(pred)){
                     tempPred <- pred
-                    pred[tempPred < 0.5] <- unique(objXAI@data[[objXAI@args$y]])[1]
-                    pred[tempPred >= 0.5] <- unique(objXAI@data[[objXAI@args$y]])[2]
+                    a_a <- unique(objXAI@data[[objXAI@args$y]])[1]
+                    pred[tempPred < 0.5] <- a_a
+                    a_a <- unique(objXAI@data[[objXAI@args$y]])[2]
+                    pred[tempPred >= 0.5] <- a_a
                 }
                 truth <- objXAI@data[[objXAI@args$y]]
                 x <- objXAI@data[, xFeature]
                 y <- objXAI@data[, yFeature]
             }
         }
-        df2plot <- data.frame(x = x, y = y, Predictions = paste0("Truth: ",truth,", Predicted: ", pred) )
+        df2plot <- data.frame(x = x, y = y,
+                    Predictions = paste0("Truth: ",truth,", Predicted: ",pred))
         p <- ggplot(df2plot, aes(x = x, y = y, color = Predictions)) +
             geom_point() + theme_bw() + xlab(xFeature) + ylab(yFeature) +
             ggtitle(paste("Model: ", modelName))
@@ -114,7 +120,9 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
                 y <- objXAI@data[[objXAI@args$y]]
             }
         }
-        df2plot <- data.frame(x = c(x, x), y = c(y, pred), Predictions = c(rep("Truth", length(x)), rep("Predicted", length(pred))))
+        df2plot <- data.frame(x = c(x, x), y = c(y, pred),
+                Predictions = c(rep("Truth", length(x)),
+                                rep("Predicted",length(pred))))
         p <- ggplot(df2plot, aes(x = x, y = y, color = Predictions)) +
             geom_point() + theme_bw() + xlab(xFeature) + ylab(objXAI@args$y) +
             ggtitle(paste("Model: ", modelName))
