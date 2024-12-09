@@ -36,10 +36,20 @@
 #' @param object An ObjXAI object.
 #' @return A data frame containing the metrics.
 #' @export
+#' @examples
+#' 
+#' obj <- new("ObjXAI", 
+#'            data = data.frame(), 
+#'            dataSim = data.frame(), 
+#'            metricsTable = data.frame(Metric = c("Accuracy", "Precision"), 
+#'                                        Value = c(0.95, 0.89)), 
+#'            map = list(), 
+#'            models = list(), 
+#'            modelPredictions = list(), 
+#'            args = list())
+#' getMetricsTable(obj)
+#' 
 setGeneric("getMetricsTable", function(object) standardGeneric("getMetricsTable"))
-#' @rdname getMetricsTable
-#' @aliases setMetricsTable,ObjXAI-method
-#' @export
 setMethod("getMetricsTable", "ObjXAI", function(object) {
   object@metricsTable
 })
@@ -51,10 +61,22 @@ setMethod("getMetricsTable", "ObjXAI", function(object) {
 #' @param value A data frame to set as the metrics table.
 #' @return The modified ObjXAI object.
 #' @export
+#' @examples
+#' 
+#' obj <- new("ObjXAI", 
+#'            data = data.frame(), 
+#'            dataSim = data.frame(), 
+#'            metricsTable = data.frame(Metric = c("Accuracy", "Precision"), 
+#'                                        Value = c(0.95, 0.89)), 
+#'            map = list(), 
+#'            models = list(), 
+#'            modelPredictions = list(), 
+#'            args = list())
+#'
+#' setMetricsTable(obj, data.frame(Metric = c("Accuracy", "Precision", "Recall"),
+#'                                Value = c(0.95, 0.89, 0.91)))
+#' 
 setGeneric("setMetricsTable", function(object, value) standardGeneric("setMetricsTable"))
-#' @rdname setMetricsTable
-#' @aliases setMetricsTable,ObjXAI-method
-#' @export
 setMethod("setMetricsTable", "ObjXAI", function(object, value) {
   validObject(object)
   if (!inherits(value, "data.frame")) {

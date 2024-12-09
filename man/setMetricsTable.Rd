@@ -2,12 +2,9 @@
 % Please edit documentation in R/allClasses.R
 \name{setMetricsTable}
 \alias{setMetricsTable}
-\alias{setMetricsTable,ObjXAI-method}
 \title{Set the Metrics Table}
 \usage{
 setMetricsTable(object, value)
-
-\S4method{setMetricsTable}{ObjXAI}(object, value)
 }
 \arguments{
 \item{object}{An ObjXAI object.}
@@ -19,4 +16,20 @@ The modified ObjXAI object.
 }
 \description{
 This method sets the metrics table for an ObjXAI object.
+}
+\examples{
+
+obj <- new("ObjXAI", 
+           data = data.frame(), 
+           dataSim = data.frame(), 
+           metricsTable = data.frame(Metric = c("Accuracy", "Precision"), 
+                                       Value = c(0.95, 0.89)), 
+           map = list(), 
+           models = list(), 
+           modelPredictions = list(), 
+           args = list())
+
+setMetricsTable(obj, data.frame(Metric = c("Accuracy", "Precision", "Recall"),
+                               Value = c(0.95, 0.89, 0.91)))
+
 }
