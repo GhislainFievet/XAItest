@@ -6,46 +6,57 @@
 #' @return A ObjXAI object
 #' @examples
 #' 
+#' obj <- new("ObjXAI", 
+#'            data = data.frame(), 
+#'            dataSim = data.frame(), 
+#'            metricsTable = data.frame(Metric = c("Accuracy", "Precision"), 
+#'                                        Value = c(0.95, 0.89)), 
+#'            map = list(), 
+#'            models = list(), 
+#'            modelPredictions = list(), 
+#'            args = list())
 #' 
-# .objXAI <- methods::setClass("ObjXAI",
-#        slots = list(
-#        data = "data.frame",
-#        dataSim = "data.frame",
-#        metricsTable = "data.frame",
-#        map = "ANY",
-#        models = "list",
-#        modelPredictions = "list",
-#        args = "list"
-#        ))
-#setMethod("show", "ObjXAI",
-#        function(object) {
-#            cat(object@metricsTable[1:min(5, nrow(object@metricsTable)),])
-#        })
 
-        # Define the S4 class 'ObjXAI'
 .objXAI <- setClass(
   "ObjXAI",
   slots = list(
     data = "data.frame",
     dataSim = "data.frame",
     metricsTable = "data.frame",
-    map = "ANY",  # 'ANY' is very generic; consider specifying a more precise class if possible.
+    map = "ANY",
     models = "list",
     modelPredictions = "list",
     args = "list"
   )
 )
 
-# Accessor for the 'metricsTable' slot
+#' Get the Metrics Table
+#'
+#' This method retrieves the metrics table from an ObjXAI object.
+#' @param object An ObjXAI object.
+#' @return A data frame containing the metrics.
+#' @export
 setGeneric("getMetricsTable", function(object) standardGeneric("getMetricsTable"))
+#' @rdname getMetricsTable
+#' @aliases setMetricsTable,ObjXAI-method
+#' @export
 setMethod("getMetricsTable", "ObjXAI", function(object) {
   object@metricsTable
 })
 
-# Setter for the 'metricsTable' slot
+#' Set the Metrics Table
+#'
+#' This method sets the metrics table for an ObjXAI object.
+#' @param object An ObjXAI object.
+#' @param value A data frame to set as the metrics table.
+#' @return The modified ObjXAI object.
+#' @export
 setGeneric("setMetricsTable", function(object, value) standardGeneric("setMetricsTable"))
+#' @rdname setMetricsTable
+#' @aliases setMetricsTable,ObjXAI-method
+#' @export
 setMethod("setMetricsTable", "ObjXAI", function(object, value) {
-  validObject(object)  # Check if object is valid
+  validObject(object)
   if (!inherits(value, "data.frame")) {
     stop("Value must be a data frame")
   }
@@ -53,8 +64,11 @@ setMethod("setMetricsTable", "ObjXAI", function(object, value) {
   object
 })
 
-
-# Define a 'show' method for objects of class 'ObjXAI'
+#' Show Method for ObjXAI
+#'
+#' Prints the first 5 rows of the metrics table from an ObjXAI object.
+#' @param object An ObjXAI object.
+#' @export
 setMethod(
   "show", 
   "ObjXAI",

@@ -7,13 +7,14 @@
 modelsOverview(objXAI, verbose = FALSE)
 }
 \arguments{
-\item{objXAI}{An object of class objXAI.}
+\item{objXAI}{An object of class ObjXAI.}
 
 \item{verbose}{Logical; if TRUE, prints the models names.}
 }
 \description{
 Returns \strong{mse}, \strong{rmse}, \strong{mae} and \strong{r2} of regression models or
-\strong{accuracy}, \strong{precision}, \strong{recall} and \strong{f1_score} of classification models.
+\strong{accuracy}, \strong{precision}, \strong{recall} and \strong{f1_score} of classification
+models.
 }
 \examples{
 

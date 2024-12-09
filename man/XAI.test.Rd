@@ -2,12 +2,14 @@
 % Please edit documentation in R/XAI.test.R
 \name{XAI.test}
 \alias{XAI.test}
-\title{The XAI.test function complements t-test and correlation analyses in feature discovery by integrating eXplainable
-AI techniques such as feature importance, SHAP, LIME, or custom functions. It provides the option of automatic
-integration of simulated data to facilitate matching significance between p-values and feature importance.}
+\title{The XAI.test function complements t-test and correlation analyses in feature
+discovery by integrating eXplainable AI techniques such as feature
+importance, SHAP, LIME, or custom functions. It provides the option of
+automatic integration of simulated data to facilitate matching significance
+between p-values and feature importance.}
 \usage{
 XAI.test(
-  df,
+  data,
   y = "y",
   featImpAgr = "mean",
   simData = FALSE,
@@ -25,78 +27,100 @@ XAI.test(
 )
 }
 \arguments{
-\item{df}{SummarizedExperiment or dataframe containing the data. If dataframe rows are samples and columns are features.}
+\item{data}{SummarizedExperiment or dataframe containing the data. If
+dataframe rows are samples and columns are features.}
 
-\item{y}{Name of the SummarizedExperiment metadata or column of the dataframe containing the target variable.
-Default to "y".}
+\item{y}{Name of the SummarizedExperiment metadata or column of the
+dataframe containing the target variable. Default to "y".}
 
-\item{featImpAgr}{Can be "mean" or "max_abs". It defines how the feature importance is aggregated.}
+\item{featImpAgr}{Can be "mean" or "max_abs". It defines how the feature
+importance is aggregated.}
 
-\item{simData}{If TRUE, a simulated feature column is added to the dataframe to target a defined p-value that
-will serve as a benchmark for determining the significance thresholds of feature importances.}
+\item{simData}{If TRUE, a simulated feature column is added to the dataframe
+to target a defined p-value that will serve as a benchmark for
+determining the significance thresholds of feature importances.}
 
-\item{simMethod}{Method used to generate the simulated data. Can be "regrnorm" or "rnorm", "regnorm" by default.
-"regrnorm" creates simulated data points that match specific percentiles within a normal distribution, defined
-by a given mean and standard deviation. "rnorm" creates simulated data points that follow a normal distribution.
+\item{simMethod}{Method used to generate the simulated data. Can be
+"regrnorm" or "rnorm", "regnorm" by default.
+"regrnorm" creates simulated data points that match specific
+percentiles within a normal distribution, defined by a given mean and
+standard deviation. "rnorm" creates simulated data points that follow a
+normal distribution.
 "regrnorm is more accurate in targeting the specified p-value.}
 
-\item{simPvalTarget}{Target p-value for the simulated data. It is used to determine the significance thresholds of
-feature importances.}
+\item{simPvalTarget}{Target p-value for the simulated data. It is used to
+determine the significance thresholds of feature importances.}
 
-\item{adjMethod}{Method used to adjust the p-values. "bonferroni" by default, can be any other method available in
-the p.adjust function.}
+\item{adjMethod}{Method used to adjust the p-values. "bonferroni" by
+default, can be any other method available in the p.adjust function.}
 
-\item{customPVals}{List of custom functions that compute p-values. The functions must take the dataframe and the
-target variable as arguments and return a names list with:
+\item{customPVals}{List of custom functions that compute p-values. The
+functions must take the dataframe and the target variable as arguments
+and return a names list with:
 \itemize{
 \item 'pvals' => a dataframe with the p-values.
 \item 'adjPVal' => a dataframe with the adjusted p-values. Optional.
 \item 'model' => the prediction model object. Optional.
 }}
 
-\item{customFeatImps}{List of custom functions that compute feature importances. The functions must take the dataframe
-and the target variable as arguments and return a names list with:
+\item{customFeatImps}{List of custom functions that compute feature
+importances. The functions must take the dataframe and the target
+variable as arguments and return a names list with:
 \itemize{
-\item 'featImps' => a dataframe with the feature importances. The names of the functions
-will be used as the column names in the output dataframe. Mandatory.
+\item 'featImps' => a dataframe with the feature importances. The names of the
+functions will be used as the column names in the output dataframe.
+Mandatory.
 \item 'model' => the predictionmodel object. Optional.
 }}
 
-\item{modelType}{Type of the model. Can be "classification", "regression" or "default". If "default", the function
-will try to infer the model type from the target variable. If the target variable is a character, the model type will
-be "classification". If the target variable is numeric, the model type will be "regression".}
+\item{modelType}{Type of the model. Can be "classification", "regression" or
+"default". If "default", the function will try to infer the model type
+from the target variable. If the target variable is a character, the
+model type will be "classification". If the target variable is numeric,
+the model type will be "regression".}
 
-\item{corMethod}{Method used to compute the correlation between the features and the target variable. "pearson" by
-default, can be any other method available in the cor.test function.}
+\item{corMethod}{Method used to compute the correlation between the features
+and the target variable. "pearson" by default, can be any other method
+available in the cor.test function.}
 
-\item{defaultMethods}{List of default p-values and feature importances methods to compute. By default "ttest", "ebayes",
-"cor", "lm", "rf", "shap" and "lime".}
+\item{defaultMethods}{List of default p-values and feature importances
+methods to compute. By default "ttest", "ebayes", "cor", "lm", "rf",
+"shap" and "lime".}
 
-\item{caretMethod}{Method used by the caret package to train the model. "rf" by default.}
+\item{caretMethod}{Method used by the caret package to train the model.
+"rf" by default.}
 
-\item{caretTrainArgs}{List of arguments to pass to the caret::train function. Optional.}
+\item{caretTrainArgs}{List of arguments to pass to the caret::train
+function. Optional.}
 
 \item{verbose}{If TRUE, the function will print messages to the console.}
 }
 \value{
-A dataframe containing the pvalues and the feature importances of each features computed by the different methods.
+A dataframe containing the pvalues and the feature importances of
+each features computed by the different methods.
 }
 \description{
-The XAI.test function complements t-test and correlation analyses in feature discovery by integrating eXplainable
-AI techniques such as feature importance, SHAP, LIME, or custom functions. It provides the option of automatic
-integration of simulated data to facilitate matching significance between p-values and feature importance.
+The XAI.test function complements t-test and correlation analyses in feature
+discovery by integrating eXplainable AI techniques such as feature
+importance, SHAP, LIME, or custom functions. It provides the option of
+automatic integration of simulated data to facilitate matching significance
+between p-values and feature importance.
 }
 \details{
-The XAI.test function is designed to extend the capabilities of conventional statistical analysis methods for
-feature discovery, such as t-tests and correlation, by incorporating techniques from explainable AI (XAI),
-such as feature importance, SHAP, LIME, or custom functions.
-This function aims at identifying significant features that influence a given target variable in a dataset,
-supporting both categorical and numerical target values.
-A key feature of XAI.test is its ability to automatically incorporate simulated data into the analysis. This
-simulated data is specifically designed to establish significance thresholds for feature importance values
-based on the p-values. This capability is useful for reinforcing the reliability of the feature importance
-metrics derived from machine learning models, by directly comparing them with established statistical
-significance metrics.
+The XAI.test function is designed to extend the capabilities of conventional
+statistical analysis methods for feature discovery, such as t-tests and
+correlation, by incorporating techniques from explainable AI (XAI), such as
+feature importance, SHAP, LIME, or custom functions.
+This function aims at identifying significant features that influence a
+given target variable in a dataset, supporting both categorical and
+numerical target values.
+A key feature of XAI.test is its ability to automatically incorporate
+simulated data into the analysis. This simulated data is specifically
+designed to establish significance thresholds for feature importance values
+based on the p-values. This capability is useful for reinforcing the
+reliability of the feature importance metrics derived from machine learning
+models, by directly comparing them with established statistical significance
+metrics.
 }
 \examples{
 
@@ -104,7 +128,7 @@ library(S4Vectors)
 library(SummarizedExperiment)
 
 # With a dataframe
-df <- data.frame(
+data <- data.frame(
   feature1 = rnorm(100),
   feature2 = rnorm(100, mean = 5),
   feature3 = runif(100, min = 0, max = 10),
@@ -112,12 +136,12 @@ df <- data.frame(
   y = c(rep("Cat1", 50), rep("Cat2", 50))
 )
 
-results <- XAI.test(df, y = "y", verbose = TRUE)
+results <- XAI.test(data, y = "y", verbose = TRUE)
 results
 
 # With a SummarizedExperiment
-assays <- SimpleList(counts = as.matrix(t(df[, 1:4])))
-colData <- DataFrame(y = df[,"y"])
+assays <- SimpleList(counts = as.matrix(t(data[, 1:4])))
+colData <- DataFrame(y = data[,"y"])
 se <- SummarizedExperiment(assays = assays,
                           colData = colData)
 results <- XAI.test(se, y = "y", verbose = TRUE)

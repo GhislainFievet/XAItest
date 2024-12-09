@@ -7,9 +7,10 @@
 plotModel(objXAI, modelName, xFeature, yFeature = "")
 }
 \arguments{
-\item{objXAI}{The objXAI object create with the XAItest function}
+\item{objXAI}{The ObjXAI object created with the XAItest function}
 
-\item{modelName}{The name of the model, can be found in 'names(objXAI@models)'}
+\item{modelName}{The name of the model, can be found in
+'names(objXAI@models)'}
 
 \item{xFeature}{The x feature}
 

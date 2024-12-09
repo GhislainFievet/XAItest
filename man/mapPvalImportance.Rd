@@ -2,45 +2,49 @@
 % Please edit documentation in R/mapPvalImportance.R
 \name{mapPvalImportance}
 \alias{mapPvalImportance}
-\title{The mapPvalImportance function displays a datatable with color-coded cells based on significance thresholds
-for feature importance and p-value columns.}
+\title{The mapPvalImportance function displays a datatable with color-coded cells
+based on significance thresholds for feature importance and p-value columns.}
 \usage{
 mapPvalImportance(
   objXAI,
-  refPvalColumn = NULL,
-  featImpColumns = NULL,
+  refPvalColumn = "adjpval",
+  featImpColumns = "feat",
   pvalColumns = NULL,
   refPval = 0.05
 )
 }
 \arguments{
-\item{objXAI}{An object of class objXAI.}
+\item{objXAI}{An object of class ObjXAI.}
 
-\item{refPvalColumn}{Optional; the name of the column containing reference p-values for feature importance.
+\item{refPvalColumn}{Optional; the name of the column containing reference
+p-values for feature importance.
 If not provided, the function will attempt to auto-detect.}
 
-\item{featImpColumns}{Optional; a vector of column names containing feature importance values.
+\item{featImpColumns}{Optional; a vector of column names containing feature
+importance values.
 If not provided, the function will attempt to auto-detect.}
 
 \item{pvalColumns}{Optional; a vector of column names containing p-values.
-If not provided, the function searches for columns containing "pval" (case insensitive).}
+If not provided, the function searches for columns containing "pval"
+(case insensitive).}
 
-\item{refPval}{The reference p-value threshold used for filtering. Defaults to 0.05.}
+\item{refPval}{The reference p-value threshold used for filtering.
+Defaults to 0.05.}
 }
 \value{
-A datatable object with color-coded cells based on significance thresholds for feature importance
-and p-value columns.
+A datatable object with color-coded cells based on significance
+thresholds for feature importance and p-value columns.
 }
 \description{
-The mapPvalImportance function displays a datatable with color-coded cells based on significance thresholds
-for feature importance and p-value columns.
+The mapPvalImportance function displays a datatable with color-coded cells
+based on significance thresholds for feature importance and p-value columns.
 }
 \details{
-The function first identifies the relevant p-value columns and feature importance columns,
-if not explicitly provided. It then calculates feature importance thresholds based on the specified
-p-value threshold.
-Then the dataframe is displaid with color-coded cells based on significance thresholds
-for feature importance and p-value columns.
+The function first identifies the relevant p-value columns and feature
+importance columns, if not explicitly provided. It then calculates feature
+importance thresholds based on the specified p-value threshold.
+Then the dataframe is displaid with color-coded cells based on significance
+thresholds for feature importance and p-value columns.
 }
 \examples{
 
