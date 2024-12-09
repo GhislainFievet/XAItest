@@ -11,6 +11,11 @@ modelsOverview(objXAI, verbose = FALSE)
 
 \item{verbose}{Logical; if TRUE, prints the models names.}
 }
+\value{
+Returns \strong{mse}, \strong{rmse}, \strong{mae} and \strong{r2} of regression models or
+\strong{accuracy}, \strong{precision}, \strong{recall} and \strong{f1_score} of classification
+models.
+}
 \description{
 Returns \strong{mse}, \strong{rmse}, \strong{mae} and \strong{r2} of regression models or
 \strong{accuracy}, \strong{precision}, \strong{recall} and \strong{f1_score} of classification

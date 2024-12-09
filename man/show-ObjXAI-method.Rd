@@ -9,6 +9,9 @@
 \arguments{
 \item{object}{An ObjXAI object.}
 }
+\value{
+The first 5 rows of the metrics table.
+}
 \description{
 Prints the first 5 rows of the metrics table from an ObjXAI object.
 }

@@ -2,18 +2,28 @@
 % Please edit documentation in R/allClasses.R
 \name{getMetricsTable}
 \alias{getMetricsTable}
+\alias{getMetricsTable,ObjXAI-method}
+\alias{setMetricsTable}
 \title{Get the Metrics Table}
 \usage{
 getMetricsTable(object)
+
+setMetricsTable(object, value)
 }
 \arguments{
 \item{object}{An ObjXAI object.}
+
+\item{value}{A data frame to set as the metrics table.}
 }
 \value{
 A data frame containing the metrics.
+
+The modified ObjXAI object.
 }
 \description{
 This method retrieves the metrics table from an ObjXAI object.
+
+This method sets the metrics table for an ObjXAI object.
 }
 \examples{
 
@@ -27,5 +37,19 @@ obj <- new("ObjXAI",
            modelPredictions = list(), 
            args = list())
 getMetricsTable(obj)
+
+
+obj <- new("ObjXAI", 
+           data = data.frame(), 
+           dataSim = data.frame(), 
+           metricsTable = data.frame(Metric = c("Accuracy", "Precision"), 
+                                       Value = c(0.95, 0.89)), 
+           map = list(), 
+           models = list(), 
+           modelPredictions = list(), 
+           args = list())
+
+setMetricsTable(obj, data.frame(Metric = c("Accuracy", "Precision", "Recall"),
+                               Value = c(0.95, 0.89, 0.91)))
 
 }

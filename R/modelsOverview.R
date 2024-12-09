@@ -7,6 +7,10 @@
 #' @param objXAI An object of class ObjXAI.
 #' @param verbose Logical; if TRUE, prints the models names.
 #' 
+#' @return Returns **mse**, **rmse**, **mae** and **r2** of regression models or
+#' **accuracy**, **precision**, **recall** and **f1_score** of classification
+#' models.
+#' 
 #' @examples
 #' 
 #' # Example with SummarizedExperiment object with a regression dataset.
