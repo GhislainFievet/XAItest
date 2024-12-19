@@ -79,7 +79,8 @@ mapPvalImportance <- function(objXAI, refPvalColumn="adjpval",
     for (col in names(fiThresholds)) {
         df4raw[[paste0("isSign_",col)]] <- 0
         thresh <- fiThresholds[[col]] * 0.99
-        df4raw[[paste0("isSign_",col)]][df4raw[[col]] > thresh] <- 1
+        df4raw[[paste0("isSign_",col)]][df4raw[[col]] > thresh] <- 0.5
+        df4raw[[paste0("isSign_",col)]][df4raw[[col]] > thresh*2] <- 1
         columnsOrder <- c(columnsOrder, col, paste0("isSign_",col))
         dt <- DT::formatStyle(dt, 
           columns = col,
