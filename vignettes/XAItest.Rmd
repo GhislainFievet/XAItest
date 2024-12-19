@@ -181,7 +181,7 @@ The *mapPvalImportance* function reveals the significance of the feature
 importance by comparison with the p-values.
 
 Display as a data.frame:
-```{r mapPvalImportance1, eval=FALSE}
+```{r mapPvalImportance1}
 mpi <- mapPvalImportance(objXAI)
 mpi$df
 ```
