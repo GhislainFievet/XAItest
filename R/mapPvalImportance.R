@@ -22,7 +22,7 @@
 #' Then the dataframe is displaid with color-coded cells based on significance
 #' thresholds for feature importance and p-value columns.
 #'
-#' @return A datatable object with color-coded cells based on significance
+#' @return A dataframe and a datatable object with color-coded cells based on significance
 #' thresholds for feature importance and p-value columns.
 #'
 #' @examples
@@ -37,7 +37,9 @@
 #' 
 #' results <- XAI.test(df, y = "categ", simData = TRUE)
 #' 
-#' mapPvalImportance(results)
+#' my_map <- mapPvalImportance(results)
+#' my_map$df
+#' my_map$dt
 #'
 #' @export
 
@@ -56,24 +58,34 @@ mapPvalImportance <- function(objXAI, refPvalColumn="adjpval",
     fiThresholds <- getFeatImpThresholds(df, refPvalColumn,
                                             featImpColumns, refPval)
     xaiResultsRound <- data.frame(lapply(df, function(x) {
-      if(is.numeric(x)) signif(x, digits = 3) else x
+        if(is.numeric(x)) signif(x, digits = 3) else x
     }))
     rownames(xaiResultsRound) <- rownames(df)
+    df4raw <- xaiResultsRound
     dt <- DT::datatable(xaiResultsRound)
-    for (col in names(fiThresholds)) {
-      thresh <- fiThresholds[[col]] * 0.99
-      dt <- DT::formatStyle(dt, 
-          columns = col,
-          backgroundColor = DT::styleInterval(c(thresh, thresh*2),
-                                          c('white', 'lightgreen', 'green'))
-        )
-    }
+    columnsOrder <- c()
+
     for (col in pvalColumns){
-      dt <- DT::formatStyle(dt, 
+        df4raw[[paste0("isSign_",col)]] <- 0
+        df4raw[[paste0("isSign_",col)]][df4raw[[col]] < refPval] <- 1
+        columnsOrder <- c(columnsOrder, col, paste0("isSign_",col))
+        dt <- DT::formatStyle(dt, 
           columns = col,
           backgroundColor = DT::styleInterval(c(refPval),
                                           c('cornflowerblue', 'white'))
         )
     }
-    dt
+
+    for (col in names(fiThresholds)) {
+        df4raw[[paste0("isSign_",col)]] <- 0
+        thresh <- fiThresholds[[col]] * 0.99
+        df4raw[[paste0("isSign_",col)]][df4raw[[col]] > thresh] <- 1
+        columnsOrder <- c(columnsOrder, col, paste0("isSign_",col))
+        dt <- DT::formatStyle(dt, 
+          columns = col,
+          backgroundColor = DT::styleInterval(c(thresh, thresh*2),
+                                          c('white', 'lightgreen', 'green'))
+        )
+    }
+    return( list(df=df4raw, dt=dt) )
 }

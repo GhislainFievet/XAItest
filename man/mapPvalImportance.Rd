@@ -32,7 +32,7 @@ If not provided, the function searches for columns containing "pval"
 Defaults to 0.05.}
 }
 \value{
-A datatable object with color-coded cells based on significance
+A dataframe and a datatable object with color-coded cells based on significance
 thresholds for feature importance and p-value columns.
 }
 \description{
@@ -58,6 +58,8 @@ df <- data.frame(
 
 results <- XAI.test(df, y = "categ", simData = TRUE)
 
-mapPvalImportance(results)
+my_map <- mapPvalImportance(results)
+my_map$df
+my_map$dt
 
 }

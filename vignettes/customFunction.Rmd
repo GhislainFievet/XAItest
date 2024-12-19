@@ -123,8 +123,15 @@ The *mapPvalImportance* function reveals that both the custom
 *XGB_SHAP_feat_imp* and other feature importance metrics identify the
 *biDistrib* feature as significant.
 
-```{r mapPvalImportance4, eval=FALSE}
-mapPvalImportance(results, refPvalColumn = "ttest_adjPval", refPval = 0.0005)
+Display as a data.frame:
+```{r mapPvalImportance4}
+mpi <- mapPvalImportance(results, refPvalColumn = "ttest_adjPval", refPval = 0.0005)
+head(mpi$df)
+```
+
+Display as a datatable:
+```{r mapPvalImportance5, eval=FALSE}
+mpi$dt
 ```
 ![ ](im/dt4.png)
 

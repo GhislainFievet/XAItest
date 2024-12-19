@@ -180,8 +180,15 @@ head(getMetricsTable(objXAI))
 The *mapPvalImportance* function reveals the significance of the feature
 importance by comparison with the p-values.
 
+Display as a data.frame:
 ```{r mapPvalImportance1, eval=FALSE}
-mapPvalImportance(objXAI)
+mpi <- mapPvalImportance(objXAI)
+mpi$df
+```
+
+Display as a datatable:
+```{r mapPvalImportance5, eval=FALSE}
+mpi$dt
 ```
 
 ![ ](im/dt1.png)
@@ -225,8 +232,15 @@ p4 <- plotModel(objXAI, "LIME_feat_imp", "biDistrib", "simFeat")
 grid.arrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
-```{r mapPvalImportance2, eval=FALSE}
-mapPvalImportance(objXAI)
+Display as a data.frame:
+```{r mapPvalImportance2}
+mpi <- mapPvalImportance(objXAI)
+head(mpi$df)
+```
+
+Display as a datatable:
+```{r mapPvalImportance15, eval=FALSE}
+mpi$dt
 ```
 ![ ](im/dt2.png)
 
@@ -303,8 +317,14 @@ regr_results <- XAI.test(dataset_regress, "y",
 getMetricsTable(regr_results)
 ```
 
-```{r mapPvalImportance3, eval=FALSE}
-mapPvalImportance(regr_results, refPvalColumn = "cor_adjPval", refPval = 0.01)
+Display as a data.frame:
+```{r mapPvalImportance3}
+mpi <- mapPvalImportance(regr_results, refPvalColumn = "cor_adjPval", refPval = 0.01)
+head(mpi$df)
+```
+Display as a datatable:
+```{r mapPvalImportance5, eval=FALSE}
+mpi$dt
 ```
 ![ ](im/dt3.png)
 
