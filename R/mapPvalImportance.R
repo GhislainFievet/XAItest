@@ -87,5 +87,5 @@ mapPvalImportance <- function(objXAI, refPvalColumn="adjpval",
                                           c('white', 'lightgreen', 'green'))
         )
     }
-    return( list(df=df4raw, dt=dt) )
+    return( list(df=df4raw[,columnsOrder], dt=dt) )
 }

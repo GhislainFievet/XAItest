@@ -323,7 +323,7 @@ mpi <- mapPvalImportance(regr_results, refPvalColumn = "cor_adjPval", refPval = 
 head(mpi$df)
 ```
 Display as a datatable:
-```{r mapPvalImportance5, eval=FALSE}
+```{r mapPvalImportance25, eval=FALSE}
 mpi$dt
 ```
 ![ ](im/dt3.png)
