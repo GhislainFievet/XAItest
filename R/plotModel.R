@@ -50,7 +50,7 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
         stop("The yFeature is not in the data")
     }
     model <- objXAI@models[[modelName]]
-    
+    predictions = NULL
     if (objXAI@args$modelType == "classification"){
         if ( modelName %in% names(objXAI@modelPredictions)){
             pred <- objXAI@modelPredictions[[modelName]]
@@ -94,10 +94,12 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
             }
         }
         df2plot <- data.frame(x = x, y = y,
-                    Predictions = paste0("Truth: ",truth,", Predicted: ",pred))
-        p <- ggplot(df2plot, aes(x = x, y = y, color = Predictions)) +
-            geom_point() + theme_bw() + xlab(xFeature) + ylab(yFeature) +
-            ggtitle(paste("Model: ", modelName))
+                    predictions = paste0("Truth: ",truth,", Predicted: ",pred))
+        p <- ggplot2::ggplot(data=df2plot,
+        		ggplot2::aes(x = x, y = y, color = predictions)) +
+            ggplot2::geom_point() + ggplot2::theme_bw() +
+            ggplot2::xlab(xFeature) + ggplot2::ylab(yFeature) +
+            ggplot2::ggtitle(paste("Model: ", modelName))
     }
     if (objXAI@args$modelType == "regression"){
         if ( modelName %in% names(objXAI@modelPredictions)){
@@ -120,12 +122,15 @@ plotModel <- function(objXAI, modelName, xFeature, yFeature=""){
                 y <- objXAI@data[[objXAI@args$y]]
             }
         }
+        
         df2plot <- data.frame(x = c(x, x), y = c(y, pred),
-                Predictions = c(rep("Truth", length(x)),
+                predictions = c(rep("Truth", length(x)),
                                 rep("Predicted",length(pred))))
-        p <- ggplot(df2plot, aes(x = x, y = y, color = Predictions)) +
-            geom_point() + theme_bw() + xlab(xFeature) + ylab(objXAI@args$y) +
-            ggtitle(paste("Model: ", modelName))
+        p <- ggplot2::ggplot(data=df2plot,
+        	ggplot2::aes(x = x, y = y, color = predictions)) +
+            ggplot2::geom_point() + ggplot2::theme_bw() +
+            ggplot2::xlab(xFeature) + ggplot2::ylab(objXAI@args$y) +
+            ggplot2::ggtitle(paste("Model: ", modelName))
     }
     return(p)
 }

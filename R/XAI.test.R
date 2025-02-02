@@ -111,9 +111,9 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
         stop("The data must be a dataframe or a SummarizedExperiment object")
     }
     if ( is(data, "SummarizedExperiment") ){
-        data_matrix <- assay(data, "counts")
+        data_matrix <- SummarizedExperiment::assay(data, "counts")
         data_matrix <- t(data_matrix)
-        metadata <- as.data.frame(colData(data))
+        metadata <- as.data.frame(SummarizedExperiment::colData(data))
         if ( is.factor(metadata[[y]]) ){
             metadata[[y]] <- as.character(metadata[[y]])
         }
