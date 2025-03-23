@@ -95,16 +95,17 @@ featureImportanceXGBoost <- function(df, y="y", ...){
     # Computing the actual Shapley values with kernelSHAP accounting
     # for feature dependence using the empirical (conditional)
     # distribution approach with bandwidth parameter sigma = 0.1 (default)
-    explainer <- shapr::shapr(matX, model, n_combinations = 2000)
     explanation <- shapr::explain(
-        matX,
+        model,
         approach = "empirical",
-        explainer = explainer,
-        prediction_zero = p,
-        n_combinations = 1000
+        x_explain = matX,
+        x_train = matX,
+        phi0 = p,
+        iterative = TRUE,
+        iterative_args = list(max_iter = 3)
     )
-    results <- colMeans(abs(explanation$dt), na.rm = TRUE)
-    
+    results <- colMeans(abs(explanation$shapley_values_est), na.rm = TRUE)
+    results <- results[3:length(results)]
     list(featImps = results, model = model, modelPredictions=modelPredictionsCat)
 }
 ```
