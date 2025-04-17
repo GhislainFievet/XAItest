@@ -26,6 +26,7 @@
     map = "ANY",
     models = "list",
     modelPredictions = "list",
+    computeTimes = "list",
     args = "list"
   )
 )

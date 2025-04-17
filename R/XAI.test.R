@@ -53,6 +53,12 @@
 #'      functions will be used as the column names in the output dataframe.
 #'      Mandatory.
 #' - 'model' => the predictionmodel object. Optional.
+#' @param customFIPV List of custom functions that compute feature importances
+#'      and corresponding p-values. The functions must take the dataframe and the
+#'      target variable as arguments and return a names list with:
+#' - 'featImps' => a dataframe with the feature importances.
+#' - 'pvals' => a dataframe with the corresponding p-values.
+#' - 'model' => the prediction model object. Optional.
 #' @param modelType Type of the model. Can be "classification", "regression" or
 #'      "default". If "default", the function will try to infer the model type
 #'      from the target variable. If the target variable is a character, the
@@ -101,6 +107,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
                     simMethod="regrnorm",
                     simPvalTarget=0.045, adjMethod="bonferroni", 
                     customPVals=NULL, customFeatImps=NULL,
+                    customFIPV=NULL,
                     modelType="default", corMethod="pearson",
                     defaultMethods=c("ttest", "ebayes", "cor", "lm",
                             "rf", "shap", "lime"),
@@ -173,6 +180,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
                             adjMethod=adjMethod,
                             customPVals=customPVals,
                             customFeatImps=customFeatImps,
+                            customFIPV=customFIPV,
                             defaultMethods=defaultMethods,
                             caretMethod=caretMethod,
                             caretTrainArgs=caretTrainArgs,
@@ -185,6 +193,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
                             adjMethod=adjMethod,
                             customPVals=customPVals,
                             customFeatImps=customFeatImps,
+                            customFIPV=customFIPV,
                             defaultMethods=defaultMethods,
                             caretMethod=caretMethod,
                             caretTrainArgs=caretTrainArgs,
@@ -195,6 +204,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
                     simMethod=simMethod,
                     simPvalTarget=simPvalTarget, adjMethod=adjMethod,
                     customPVals=customPVals, customFeatImps=customFeatImps,
+                    customFIPV=customFIPV,
                     modelType=modelType, corMethod=corMethod,
                     defaultMethods=defaultMethods, caretMethod=caretMethod,
                     caretTrainArgs=caretTrainArgs)
@@ -206,6 +216,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
             metricsTable=results$metricsTable,
             models=results$models,
             modelPredictions=results$modelPredictions,
+            computeTimes=results$computeTimes,
             args=argsList
         )
 
@@ -215,6 +226,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
             metricsTable=results$metricsTable,
             models=results$models,
             modelPredictions=results$modelPredictions,
+            computeTimes=results$computeTimes,
             args=argsList
         )
 
@@ -225,13 +237,14 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
 .XAIclassif <- function(data, y="y", featImpAgr="mean", simData=FALSE,
                     simMethod="regnorm", simPvalTarget=0.045,
                     adjMethod="bonferroni", customPVals=NULL,
-                    customFeatImps=NULL, defaultMethods=c("ttest",
-                                "ebayes", "cor", "lm", "rf", "shap", "lime"),
+                    customFeatImps=NULL, customFIPV=NULL,
+                    defaultMethods=c("ttest", "ebayes", "cor", "lm",
+                                "rf", "shap", "lime"),
                     caretMethod="rf", caretTrainArgs=NULL,
                     verbose=FALSE){
-
     listModels <- list()
     listModelPredictions <- list()
+    computeTimes <- list()
     data <- data[order(data[[y]]),]
     # Simulated data is added to target a defined p-value that will serve as a
     # benchmark for determining the significance thresholds of feature
@@ -245,10 +258,18 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
     }
     # Compute pval statistics
     if ( "ttest" %in% defaultMethods || ! "ebayes" %in% defaultMethods){
+        start_time <- Sys.time()
         results <- pValTTest(data, y, adjMethod)
+        end_time <- Sys.time()
+        computeTimes[["ttest_pval"]] <- difftime(end_time, start_time, units="secs")
+        computeTimes[["ttest_adjPval"]] <- difftime(end_time, start_time, units="secs")
         results <- results[order(results$ttest_pval),]
     } else {
+        start_time <- Sys.time()
         results <- pValEBayes(data, y, adjMethod)
+        end_time <- Sys.time()
+        computeTimes[["ebayes_pval"]] <- difftime(end_time, start_time, units="secs")
+        computeTimes[["ebayes_adjPval"]] <- difftime(end_time, start_time, units="secs")
         results <- results[order(results$ebayes_pval),]
     }
 
@@ -259,29 +280,42 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
     }
 
     if ( "lm" %in% defaultMethods ){
+        start_time <- Sys.time()
         pvlm <- pValLM(data, y, adjMethod=adjMethod)
+        end_time <- Sys.time()
+        computeTimes[["lm_pval"]] <- difftime(end_time, start_time, units="secs")
+        computeTimes[["lm_adjPval"]] <- difftime(end_time, start_time, units="secs")
         listModels[["lm_pval"]] <- pvlm$model
         results <- cbind(results, pvlm$pvals[rownames(results),])
     }
 
     # Compute features importance
     if("rf" %in% defaultMethods){
+        start_time <- Sys.time()
         firf <- featureImportanceRF(data, y)
+        end_time <- Sys.time()
+        computeTimes[["RF_feat_imp"]] <- difftime(end_time, start_time, units="secs")
         listModels[["RF_feat_imp"]] <- firf$model
         results[["RF_feat_imp"]] <- firf$featImps[rownames(results),]
     }
 
     if("shap" %in% defaultMethods){
+        start_time <- Sys.time()
         featImpSHAP <- featureImportanceShap(data, y, featImpAgr=featImpAgr,
         caretMethod=caretMethod, caretTrainArgs=caretTrainArgs)
+        end_time <- Sys.time()
+        computeTimes[["SHAP_feat_imp"]] <- difftime(end_time, start_time, units="secs")
         # listModels[["SHAP_feat_imp"]] <- featImpSHAP$model
         listModelPredictions[["SHAP_feat_imp"]] <- featImpSHAP$modelPredictions
         results[["SHAP_feat_imp"]] <- featImpSHAP$featImps[rownames(results)]
     }
 
     if("lime" %in% defaultMethods){
+        start_time <- Sys.time()
         featImpLime <- featureImportanceLime(data, y, featImpAgr=featImpAgr,
         caretMethod=caretMethod, caretTrainArgs=caretTrainArgs)
+        end_time <- Sys.time()
+        computeTimes[["LIME_feat_imp"]] <- difftime(end_time, start_time, units="secs")
         listModels[["LIME_feat_imp"]] <- featImpLime$model
         results[["LIME_feat_imp"]] <- featImpLime$featImps[rownames(results)]
     }
@@ -289,7 +323,10 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
     # Add the feature importance from the custom functions
     for (custFI in names(customFeatImps)){
         if (verbose){ message("Add custom feature importance:",custFI)}
+        start_time <- Sys.time()
         cfi <- customFeatImps[[custFI]](data,y,featImpAgr=featImpAgr)
+        end_time <- Sys.time()
+        computeTimes[[paste0(custFI,"_feat_imp")]] <- difftime(end_time, start_time, units="secs")
         if(length(grep("_feat_imp$", custFI)) == 0){
             custFI <- paste0(custFI, "_feat_imp")
         }
@@ -303,22 +340,52 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
     }
     for (custPV in names(customPVals)){
         if (verbose){ message("Add custom p-values:",custPV)}
+        start_time <- Sys.time()
         cpv <- customPVals[[custPV]](data,y)
+        end_time <- Sys.time()
+        computeTimes[[paste0(custPV,"_pval")]] <- difftime(end_time, start_time, units="secs")
         results[[paste0(custPV,"_pval")]] <- cpv$pvals[rownames(results)]
         if (paste0(custPV,"_adjPval") %in% names(cpv)){
+            computeTimes[[paste0(custPV,"_adjPval")]] <- difftime(end_time, start_time, units="secs")
             results[[paste0(custPV,"_adjPval")]] <-
                 cpv$adjPVal[rownames(results)]
+        }
+    }
+    for (custFIPV in names(customFIPV)){
+        if (verbose){ message("Add custom feature importance and corresponding p-values:",custFIPV)}
+        start_time <- Sys.time()
+        cfi <- customFIPV[[custFIPV]](data,categ=y)
+        end_time <- Sys.time()
+        my_diff <- difftime(end_time, start_time, units="secs")
+        if("computeTimes" %in% names(cfi)){
+            computeTimes[[paste0(custFIPV,"_feat_imp")]] <- cfi$computeTimes[["diff_time1"]]
+            computeTimes[[paste0(custFIPV,"_feat_imp_pval")]] <- cfi$computeTimes[["diff_time2"]]
+        } else {
+            computeTimes[[paste0(custFIPV,"_feat_imp")]] <- my_diff
+        }
+        results[[paste0(custFIPV,"_feat_imp")]] <- cfi$featImps[rownames(results)]
+        results[[paste0(custFIPV,"_feat_imp_pval")]] <- cfi$pvals[rownames(results)]
+        if ("adjPvals" %in% names(cfi)){
+            results[[paste0(custFIPV,"_feat_imp_adjPval")]] <-
+                cfi$adjPvals[rownames(results)]
+            if("computeTimes" %in% names(cfi)){
+                computeTimes[[paste0(custFIPV,"_feat_imp_adjPval")]] <- cfi$computeTimes[["diff_time2"]]
+            } else {
+                computeTimes[[paste0(custFIPV,"_feat_imp_adjPval")]] <- my_diff
+            }
         }
     }
     if(simData){
         return(list(dataSim=data,
             metricsTable=results,
             models=listModels,
-            modelPredictions=listModelPredictions))
+            modelPredictions=listModelPredictions,
+            computeTimes=computeTimes))
     }
     return(list(metricsTable=results,
         models=listModels,
-        modelPredictions=listModelPredictions))
+        modelPredictions=listModelPredictions,
+        computeTimes=computeTimes))
 }
 
 
@@ -326,6 +393,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
                             simMethod="regrnorm",
                             adjMethod="bonferroni",
                             customPVals=NULL, customFeatImps=NULL,
+                            customFIPV=NULL,
                             corMethod="pearson", simPvalTarget=0.01,
                             defaultMethods=c("ttest", "ebayes", "cor",
                                     "lm", "rf", "shap", "lime"),
@@ -334,6 +402,7 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
                             verbose=NULL){
     listModels <- list()
     listModelPredictions <- list()
+    computeTimes <- list()
     if (simData){
         data <- cbind(data,
                     genSimulatedFeaturesRegr(data, y,
@@ -343,33 +412,54 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
     }
 
     if("cor" %in% defaultMethods || ! "lm" %in% defaultMethods){
+        start_time <- Sys.time()
         results <- pValCor(data, y, adjMethod=adjMethod, corMethod=corMethod)
+        end_time <- Sys.time()
+        computeTimes[["cor_pval"]] <- difftime(end_time, start_time, units="secs")
+        computeTimes[["cor_adjPval"]] <- difftime(end_time, start_time, units="secs")
     } else {
+        start_time <- Sys.time()
         pvlm <- pValLM(data, y, adjMethod=adjMethod)
+        end_time <- Sys.time()
+        computeTimes[["lm_pval"]] <- difftime(end_time, start_time, units="secs")
+        computeTimes[["lm_adjPval"]] <- difftime(end_time, start_time, units="secs")
         listModels[["lm_pval"]] <- pvlm$model
         results <- pvlm$pvals
     }
   
     if ("lm" %in% defaultMethods && "cor" %in% defaultMethods){
+        start_time <- Sys.time()
         pvlm <- pValLM(data, y, adjMethod=adjMethod)
+        end_time <- Sys.time()
+        computeTimes[["lm_pval"]] <- difftime(end_time, start_time, units="secs")
+        computeTimes[["lm_adjPval"]] <- difftime(end_time, start_time, units="secs")
         listModels[["lm_pval"]] <- pvlm$model
         results <- cbind(results, pvlm$pvals[rownames(results),])
     }
     
     if ("rf" %in% defaultMethods){
+        start_time <- Sys.time()
         firf <- featureImportanceRF(data, y, modelType="regression")
+        end_time <- Sys.time()
+        computeTimes[["RF_feat_imp"]] <- difftime(end_time, start_time, units="secs")
         listModels[["RF_feat_imp"]] <- firf$model
         results[["RF_feat_imp"]] <- firf$featImps[rownames(results),]
     }
     if ("shap" %in% defaultMethods){
+        start_time <- Sys.time()
         featImpSHAP <- featureImportanceShap(data, y, featImpAgr=featImpAgr,
                             modelType="regression")
+        end_time <- Sys.time()
+        computeTimes[["SHAP_feat_imp"]] <- difftime(end_time, start_time, units="secs")
         listModels[["SHAP_feat_imp"]] <- featImpSHAP$model
         results[["SHAP_feat_imp"]] <- featImpSHAP$featImps[rownames(results)]
     }
     if ("lime" %in% defaultMethods){
+        start_time <- Sys.time()
         featImpLime <- featureImportanceLime(data, y, featImpAgr=featImpAgr,
                             modelType="regression")
+        end_time <- Sys.time()
+        computeTimes[["LIME_feat_imp"]] <- difftime(end_time, start_time, units="secs")
         listModels[["LIME_feat_imp"]] <- featImpLime$model
         results[["LIME_feat_imp"]] <- featImpLime$featImps[rownames(results)]
     }
@@ -377,7 +467,10 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
 #   Add the feature importance from the custom functions
     for (custFI in names(customFeatImps)){
         if (verbose){ message("Add custom feature importance:",custFI)}
+        start_time <- Sys.time()
         cfi <- customFeatImps[[custFI]](data, y, featImpAgr=featImpAgr)
+        end_time <- Sys.time()
+        computeTimes[[paste0(custFI,"_feat_imp")]] <- difftime(end_time, start_time, units="secs")
         if(length(grep("_feat_imp$", custFI)) == 0){
             custFI <- paste0(custFI, "_feat_imp")
         }
@@ -389,6 +482,30 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
         }
         results[[custFI]] <- cfi$featImps[rownames(results)]
     }
+    for (custFIPV in names(customFIPV)){
+        if (verbose){ message("Add custom feature importance and corresponding p-values:",custFIPV)}
+        start_time <- Sys.time()
+        cfi <- customFIPV[[custFIPV]](data,categ=y)
+        end_time <- Sys.time()
+        my_diff <- difftime(end_time, start_time, units="secs")
+        if("computeTimes" %in% names(cfi)){
+            computeTimes[[paste0(custFIPV,"_feat_imp")]] <- cfi$computeTimes[["diff_time1"]]
+            computeTimes[[paste0(custFIPV,"_feat_imp_pval")]] <- cfi$computeTimes[["diff_time2"]]
+        } else {
+            computeTimes[[paste0(custFIPV,"_feat_imp")]] <- my_diff
+        }
+        results[[paste0(custFIPV,"_feat_imp")]] <- cfi$featImps[rownames(results)]
+        results[[paste0(custFIPV,"_feat_imp_pval")]] <- cfi$pvals[rownames(results)]
+        if ("adjPvals" %in% names(cfi)){
+            results[[paste0(custFIPV,"_feat_imp_adjPval")]] <-
+                cfi$adjPvals[rownames(results)]
+            if("computeTimes" %in% names(cfi)){
+                computeTimes[[paste0(custFIPV,"_feat_imp_adjPval")]] <- cfi$computeTimes[["diff_time2"]]
+            } else {
+                computeTimes[[paste0(custFIPV,"_feat_imp_adjPval")]] <- my_diff
+            }
+        }
+    }
     if ( length(grep("pval", colnames(results))) > 0){
         results <- results[order(results[[grep("pval",
                                 colnames(results), value=TRUE)[1]]]),]
@@ -397,11 +514,13 @@ XAI.test <- function(data, y="y", featImpAgr="mean", simData=FALSE,
         return(list(dataSim=data,
             metricsTable=results,
             models=listModels,
-            modelPredictions=listModelPredictions))
+            modelPredictions=listModelPredictions,
+            computeTimes=computeTimes))
     }
     return(list(metricsTable=results,
         models=listModels,
-        modelPredictions=listModelPredictions))
+        modelPredictions=listModelPredictions,
+        computeTimes=computeTimes))
 }
 genSimulatedFeaturesRegr <- function(data, y="y",
                                     method="regrnorm",
